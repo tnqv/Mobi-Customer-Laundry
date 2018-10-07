@@ -1,21 +1,70 @@
 import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { createBottomTabNavigator } from 'react-navigation';
+import { createBottomTabNavigator,createStackNavigator,StackNavigator } from 'react-navigation';
 import OrderInfo from '../containers/orderInfo';
 import ServiceInfo from '../containers/serviceInfo';
 import SampleApp from '../containers/sampleApp';
 import NotificationFeeds from '../containers/notificationFeeds';
 import Settings from '../containers/settings';
+import LoginPage from '../containers/loginPage';
+import PlaceOrder from '../containers/placeOrder';
+import SplashScreen from '../containers/splashScreen';
 import colors from '../config/colors'
+
 
 const serviceIcon = (<Ionicons name="md-pricetags" size={24} />)
 const orderIcon = (<Ionicons name="md-reorder" size={24}  />)
 const notificationIcon = (<Ionicons name="md-notifications" size={24} />)
 const personIcon = (<Ionicons name="md-person" size={24} />)
-const serviceIconActive = (<Ionicons name="md-pricetags" size={24} color={colors.appleDefaultColor} />)
-const orderIconActive = (<Ionicons name="md-reorder" size={24}  color={colors.appleDefaultColor} />)
-const notificationIconActive = (<Ionicons name="md-notifications" size={24} color={colors.appleDefaultColor}  />)
-const personIconActive = (<Ionicons name="md-person" size={24} color={colors.appleDefaultColor} />)
+const serviceIconActive = (<Ionicons name="md-pricetags" size={24} color={colors.colorBlueOnLeftTopLogo} />)
+const orderIconActive = (<Ionicons name="md-reorder" size={24}  color={colors.colorBlueOnLeftTopLogo} />)
+const notificationIconActive = (<Ionicons name="md-notifications" size={24} color={colors.colorBlueOnLeftTopLogo}  />)
+const personIconActive = (<Ionicons name="md-person" size={24} color={colors.colorBlueOnLeftTopLogo} />)
+
+export const OrderStack = createStackNavigator(
+  {
+      OrderInfo: {
+          screen: OrderInfo,
+          navigationOptions: {
+              header: null,
+          }
+      },
+      LoginView: {
+          screen: LoginPage,
+          navigationOptions: {
+            tabBarVisible: false,
+            header: null,
+          }
+      },
+      PlaceOrderView: {
+         screen: PlaceOrder,
+         navigationOptions: {
+          tabBarVisible: false,
+         }
+      }
+  },
+  {
+      initialRouteName: 'OrderInfo',
+      mode: 'modal',
+      headerMode: 'none',
+
+  }
+);
+
+OrderStack.navigationOptions = ({navigation}) => {
+   let tabBarVisible = true;
+   let routeName = navigation.state.routes[navigation.state.index].routeName;
+
+   if(routeName === 'LoginView') {
+     tabBarVisible = false;
+     header = null;
+   }else if(routeName === 'PlaceOrderView'){
+    tabBarVisible = false;
+   }
+   return {
+     tabBarVisible,
+   }
+}
 
 export const MainTabBar = createBottomTabNavigator(
   {
@@ -29,7 +78,7 @@ export const MainTabBar = createBottomTabNavigator(
       }
     },
     OrderInfo : {
-      screen: OrderInfo,
+      screen: OrderStack,
       navigationOptions: {
         title: "Đơn hàng",
         tabBarIcon: ({ tintColor, focused }) => (
@@ -55,5 +104,18 @@ export const MainTabBar = createBottomTabNavigator(
         ),
       }
     }
+  },
+  {
+    tabBarOptions: {
+      activeTintColor: colors.colorBlueAccentOnLeftTopLogo,
+    }
   }
 )
+
+export const AppStack =  createStackNavigator({
+  SplashScreen: { screen: SplashScreen },
+  MainTabBar: { screen: MainTabBar },
+},{
+  mode: 'modal',
+  headerMode: 'none',
+})

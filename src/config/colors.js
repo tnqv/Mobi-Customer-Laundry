@@ -17,5 +17,13 @@ const colors = {
   appleDefaultColor: '#007AFF',
   colorLogo : '#006AF1',
   blueTest: '#00A0DC',
+  fbColor: '#3b5998',
+  colorLogoBlueLight: '#8AC2EE',
+  colorBlueOnLeftTopLogo: '#00AEEE',
+  colorBlueAccentOnLeftTopLogo: '#1973BA',
+  newPrimaryBlue : '#71afe5',
+  newAccentBlue: '#005a9e',
+  newTextInactive: '#c7e0f4'
+
 };
 export default colors;

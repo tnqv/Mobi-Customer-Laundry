@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">LaundryCustomer</string>
+    <string name="facebook_app_id">2259251500796826</string>
+    <string name="google_map_key">AIzaSyDZX1AjUUvJydL7kbBpmar-NUPSuUoStDY</string>
 </resources>

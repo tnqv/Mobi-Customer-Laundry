@@ -22,7 +22,7 @@ class OrderInfo extends Component {
       {
         //Header
       }
-       <Header style={{backgroundColor: colors.appleDefaultColor}}>
+       <Header style={{backgroundColor: colors.colorBlueOnLeftTopLogo}}>
         <Left style={{flex: 1}}></Left>
 
         <Body style={{flex:1,alignItems:'center'}}>
@@ -44,8 +44,10 @@ class OrderInfo extends Component {
                   active={this.state.active}
                   direction="up"
                   containerStyle={{ }}
-                  style={{ backgroundColor: colors.colorLogo }}
-                  position="bottomRight">
+                  style={{ backgroundColor: colors.colorBlueOnLeftTopLogo }}
+                  position="bottomRight"
+                  // onPress={() => this.props.navigation.navigate('LoginView')}>
+                  onPress={() => this.props.navigation.navigate('PlaceOrderView')}>
                   <FontAwesome name="plus" size={12}/>
             </Fab>
       </View>
