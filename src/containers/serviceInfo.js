@@ -209,11 +209,14 @@ class ServiceInfo extends Component {
                   </View>
               </Swiper>
            </View>
-           <Tabs>
+           <Tabs
+            style={{flex:1}}
+            prerenderingSiblingsNumber={1}>
                 <Tab heading="Dịch vụ"
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
                      textStyle={{color :colors.white}}
                      activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}>
+                    <Content style={{flex:1}}>
                     <Text style={styles.bangGiaDichVuCss}>
                           Bảng giá dịch vụ
                     </Text>
@@ -224,22 +227,26 @@ class ServiceInfo extends Component {
                       renderItem= {this._renderItem}
                       renderSectionHeader={this._renderSectionHeader}
                       />
-
+                    </Content>
                 </Tab>
                 <Tab heading="Về chúng tôi"
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
                      textStyle={{color :colors.white}}
-                     activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}>
+                     activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}
+                     >
+                     <Content>
                     <MapView
-                        style={{flex:1}}
+                        style={{height:200}}
                         initialRegion={{
                           latitude: 37.78825,
                           longitude: -122.4324,
                           latitudeDelta: 0.0922,
                           longitudeDelta: 0.0421,
                         }}/>
-                    <Card style={{flex:2}}></Card>
-
+                    <Card
+                        style={{height:170}}>
+                    </Card>
+                    </Content>
                 </Tab>
                 <Tab heading="Đánh giá"
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
