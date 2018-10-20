@@ -22,16 +22,35 @@ class LoginPage extends Component {
     // need to go for webview.
     let result;
     try {
-      // this.setState({showLoadingModal: true});
       LoginManager.setLoginBehavior('NATIVE_ONLY');
       result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+      if(result.isCancelled){
+        return
+      }
+      let fbAccessToken = await AccessToken.getCurrentAccessToken();
+
+      if(fbAccessToken){
+          this.props.onFacebookLogin(fbAccessToken);
+      }
+
     } catch (nativeError) {
       try {
         LoginManager.setLoginBehavior('WEB_ONLY');
-        result = await LoginManager.logInWithReadPermissions(['public_profile', 'email']);
+        result = await LoginManager.logInWithReadPermissions(['public_profile','email']);
+        console.log(result);
+        if(result.isCancelled){
+          return
+        }
+        let fbAccessToken = await AccessToken.getCurrentAccessToken();
+        console.log(fbAccessToken);
+        if(fbAccessToken){
+            this.props.onFacebookLogin({fbToken : fbAccessToken});
+        }
+
       } catch (webError) {
         // show error message to the user if none of the FB screens
         // did not open
+          alert(webError)
       }
     }
     // handle the case that users clicks cancel button in Login view
@@ -116,7 +135,7 @@ class LoginPage extends Component {
                           <Button style={{alignSelf: 'stretch', backgroundColor: colors.fbColor, marginTop:15}}
                                   block
                                   primary
-                                  onPress={this._facebookLogin}>
+                                  onPress={this._facebookLogin.bind(this)}>
                             <Image
                               style={{ width: 20, height: 20,}}
                               source={require('../assets/facebook.png')}></Image>
@@ -144,6 +163,11 @@ class LoginPage extends Component {
                   color='blue'>
                 </Spinner> : null
 
+          }
+
+          {
+            this.props.account.error ?
+            <Text> Cac </Text> : null
           }
 
     </Container>
@@ -185,6 +209,9 @@ function mapDispatchToProps(dispatch) {
   return {
     onLogin: (accountLogin) => {
       dispatch(appActions.actions.loginRequest(accountLogin));
+    },
+    onFacebookLogin: (fbToken) => {
+      dispatch(appActions.actions.loginFacebookRequest(fbToken));
     },
     //Not necessary !
     // onSuccessFetch: () => {

@@ -14,6 +14,8 @@ import saga from 'redux-saga';
 import sagaRoot from './sagas';
 import firebase from 'react-native-firebase';
 import { AsyncStorage } from 'react-native';
+import NavigatorService from './services/navigator';
+
 
 // const instructions = Platform.select({
 //   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -62,11 +64,13 @@ class App extends Component {
       this.notificationListener();
       this.notificationOpenedListener();
   }
+
+
     //1
   async checkPermission() {
     const enabled = await firebase.messaging().hasPermission();
     if (enabled) {
-        console.log("enable true");
+
         this.getToken();
     } else {
 
@@ -146,7 +150,11 @@ class App extends Component {
   render(){
     return (
       <Provider store={store}>
-        <AppStack/>
+        <AppStack
+          ref={navigatorRef => {
+            NavigatorService.setTopLevelNavigator(navigatorRef);
+          }}
+          ></AppStack>
       </Provider>
     );
   }

@@ -87,8 +87,11 @@ class ServiceInfo extends Component {
     }
   }
 
+  componentDidMount(){
+      // this.state.data = this.props.service.data
+  }
   componentWillMount(){
-      this.state.listData = this.state.data.map(object =>{
+      this.state.listData = this.props.service.data.map(object =>{
           return Object.assign(
             {},
             {
@@ -131,7 +134,7 @@ class ServiceInfo extends Component {
 
                           <Text style={{fontSize: 12,marginTop:10}}>{item.description}</Text>
 
-                          <Text style={{fontWeight: 'bold',color: colors.colorBlueAccentOnLeftTopLogo,fontSize: 16,marginTop: 5}}>
+                          <Text style={{fontWeight: 'bold',color: colors.colorBlueOnLeftTopLogo,fontSize: 16,marginTop: 5}}>
                                {item.price} đ
                           </Text>
 
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
      justifyContent: 'center',
      alignItems: 'center',
      textAlign: 'center',
-     color: colors.colorBlueAccentOnLeftTopLogo,
+     color: colors.colorBlueOnLeftTopLogo,
      fontSize:22,
      fontWeight:"bold",
   },
@@ -312,13 +315,17 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    state: state
+    state: state,
+    service: state.service,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(appActions.actions, dispatch)
+    // actions: bindActionCreators(appActions.actions, dispatch),
+    getServicesList : () => {
+      dispatch(appActions.actions.serviceRequest());
+    },
   };
 }
 

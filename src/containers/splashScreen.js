@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text, Image, FlatList,SectionList,StyleSheet} from 'react-native';
+import {View,Text, Image, FlatList,SectionList,StyleSheet,AsyncStorage} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -16,12 +16,58 @@ class SplashScreen extends Component {
     super(props);
   }
 
-  componentDidMount () {
-    setTimeout(() => {
-      requestAnimationFrame(() => {
-        this.props.navigation.navigate('MainTabBar');
-      });
-    }, 500);
+  async componentDidMount () {
+
+
+
+    this.props.getServicesList();
+
+    // if(this.props.service.data || this.props.service.error){
+      // requestAnimationFrame(() => {
+      //   this.props.navigation.navigate('MainTabBar');
+      // });
+    // }
+
+    // setTimeout(() => {
+
+    // },500)
+    // await this.props.onLoadServices();
+
+
+    // try{
+    //     console.log("in try");
+    //     let value = await AsyncStorage.getItem('token');
+    //     console.log("get token");
+    //     if(value){
+    //       console.log("value ?");
+    //       this.props.onLoadUser(value);
+    //       requestAnimationFrame(() => {
+    //             this.props.navigation.navigate('MainTabBar');
+    //       });
+    //     }else{
+    //       requestAnimationFrame(() => {
+    //         this.props.navigation.navigate('MainTabBar');
+    //       });
+    //     }
+
+    // }catch(er){
+    //   requestAnimationFrame(() => {
+    //     this.props.navigation.navigate('MainTabBar');
+    //   });
+    // }
+    // AsyncStorage.getItem('token').then((value)=>{
+    //     console.log("Incall back"+ value);
+    //     if(value){
+    //       await this.props.onLoadUser(value);
+    //       requestAnimationFrame(() => {
+    //             this.props.navigation.navigate('MainTabBar');
+    //       });
+    //     }
+
+    // },(error)=>{
+    //   console.log(error);
+    // });
+
   }
 
   render() {
@@ -48,13 +94,21 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    state: state
+    state: state,
+    login: state.login,
+    service: state.service,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(appActions.actions, dispatch)
+    // actions: bindActionCreators(appActions.actions, dispatch),
+    onLoadUser: (token) => {
+      dispatch(appActions.actions.loadUserFromAsyncStorageRequest(token));
+    },
+    getServicesList : () => {
+      dispatch(appActions.actions.serviceRequest());
+    },
   };
 }
 

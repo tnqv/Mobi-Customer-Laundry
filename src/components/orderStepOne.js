@@ -8,7 +8,9 @@ import {
 } from 'react-native';
 
 import colors from '../config/colors';
-import { Content,Form,Item,Input,Label,Button,Textarea } from 'native-base';
+import { Content,Form,Item,Input,Label,Button,Textarea,Card,Left,Right, CardItem } from 'native-base';
+
+import MapView from 'react-native-maps';
 
 
 
@@ -23,14 +25,24 @@ export default class OrderStepOne extends Component {
 
     return (
 
-      <View style={{flex:1}}>
-                      <View style={{flex:1}}>
-                        <Image
-                          style={{flex:1}}
-                          source={require('../assets/mapexample.jpg')}/>
+      <Content style={{flex:1}}>
+                      <View style={{flex:1,height:200}}>
+                      <MapView style={styles.map} initialRegion={{
+                          latitude:-6.270565,
+                          longitude:106.759550,
+                          latitudeDelta: 1,
+                          longitudeDelta: 1
+                          }}>
+
+                          {!!this.state.latitude && !!this.state.longitude && <MapView.Marker
+                            coordinate={{"latitude":this.state.latitude,"longitude":this.state.longitude}}
+                            title={"Your Location"}
+                          />}
+
+                          </MapView>
 
                       </View>
-                      <Form style={{flex:1,marginLeft: 15,marginRight: 15}}>
+                      <Form style={{flex:2,marginLeft: 15,marginRight: 15}}>
                         <Item floatingLabel>
                           <Label>Địa chỉ</Label>
                           <Input />
@@ -43,9 +55,14 @@ export default class OrderStepOne extends Component {
 
 
                         </View>
+
+                        <Item floatingLabel>
+                          <Label>Số ký của quần áo</Label>
+                          <Input />
+                        </Item>
                       </Form>
 
-                  </View>
+                  </Content>
 
     );
   }
@@ -66,5 +83,8 @@ const styles = StyleSheet.create({
     flex:1,
     justifyContent:'center',
     alignItems:'center'
+  },
+  map : {
+    flex:1,
   }
 });

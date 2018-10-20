@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text,Image} from 'react-native';
+import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -10,66 +10,11 @@ import OrderStepThree from '../components/orderStepThree';
 import { Card, CardItem, Header, Left, Body, Right, Button, Title,Textarea,Content,Label, Icon, Item, Input,Form } from 'native-base';
 import { ViewPager } from 'rn-viewpager';
 import StepIndicator from 'react-native-step-indicator';
-import { NavigationActions } from 'react-navigation'
+import { NavigationActions } from 'react-navigation';
+import MapView,{ AnimatedRegion } from 'react-native-maps';
+
 
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-
-
-const labels = ["Địa chỉ","Khối lượng đồ","Thanh toán","Hoàn tất"];
-const customStyles = {
-  stepIndicatorSize: 50,
-  currentStepIndicatorSize:50,
-  separatorStrokeWidth: 2,
-  currentStepStrokeWidth: 3,
-  stepStrokeCurrentColor: colors.colorLogo,
-  stepStrokeWidth: 3,
-  stepStrokeFinishedColor: colors.colorLogo,
-  stepStrokeUnFinishedColor: '#aaaaaa',
-  separatorFinishedColor: colors.colorLogo,
-  separatorUnFinishedColor: '#aaaaaa',
-  stepIndicatorFinishedColor: colors.colorLogo,
-  stepIndicatorUnFinishedColor: colors.white,
-  stepIndicatorCurrentColor: colors.white,
-  stepIndicatorLabelFontSize: 13,
-  currentStepIndicatorLabelFontSize: 13,
-  stepIndicatorLabelCurrentColor: colors.colorLogo,
-  stepIndicatorLabelFinishedColor: colors.white,
-  stepIndicatorLabelUnFinishedColor: '#aaaaaa',
-  labelColor: '#999999',
-  labelSize: 13,
-  currentStepLabelColor: colors.colorLogo
-}
-
-const getStepIndicatorIconConfig = ({ position, stepStatus }) => {
-  const iconConfig = {
-    name: 'feed',
-    color: stepStatus === 'finished' ? colors.white : colors.colorLogo,
-    size: 15,
-  };
-  switch (position) {
-    case 0: {
-      iconConfig.name = 'location-on';
-      break;
-    }
-    case 1: {
-      iconConfig.name = 'disc-full';
-      break;
-    }
-    case 2: {
-      iconConfig.name = 'payment';
-      break;
-    }
-    case 3: {
-      iconConfig.name = 'check';
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  return iconConfig;
-};
-
 
 
 class PlaceOrder extends Component {
@@ -78,7 +23,13 @@ class PlaceOrder extends Component {
     super(props);
     this.state = {
       currentPage:0,
-      PAGES: ['Page 1','Page 2','Page 3','Page 4']
+      routeCoordinates: [],
+      distanceTravelled: 0,
+      prevLatLng: {},
+      coordinate: new AnimatedRegion({
+       latitude: this.props.location.latitude,
+       longitude: this.props.location.longitude,
+      })
     }
   }
 
@@ -90,6 +41,45 @@ class PlaceOrder extends Component {
     }
   }
 
+  _onMapReady = () => this.setState({statusBarHeight: StatusBar.currentHeight})
+
+  componentWillMount(){
+
+  }
+  componentDidMount(){
+    this.watchID = navigator.geolocation.watchPosition(
+      position => {
+        const { coordinate, routeCoordinates, distanceTravelled } =   this.state;
+        const { latitude, longitude } = position.coords;
+
+        const newCoordinate = {
+          latitude,
+          longitude
+        };
+        if (Platform.OS === "android") {
+          if (this.marker) {
+            this.marker._component.animateMarkerToCoordinate(
+              newCoordinate,
+              500
+            );
+           }
+         } else {
+           coordinate.timing(newCoordinate).start();
+         }
+
+         this.props.onLocationChanged(newCoordinate);
+
+         this.setState({
+          //  latitude,
+          //  longitude,
+           routeCoordinates: routeCoordinates.concat([newCoordinate]),
+           prevLatLng: newCoordinate
+         });
+       },
+       error => console.log(error),
+       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
+  }
 
 
   onPageChange(position){
@@ -109,8 +99,29 @@ class PlaceOrder extends Component {
   );
 
 
+  _findMe(){
+    navigator.geolocation.getCurrentPosition(
+      ({coords}) => {
+        // const {latitude, longitude} = coords
 
-
+        this.props.onLocationChanged(coords);
+        // this.setState({
+        //   position: {
+        //     latitude,
+        //     longitude,
+        //   },
+        //   region: {
+        //     latitude,
+        //     longitude,
+        //     latitudeDelta: 0.005,
+        //     longitudeDelta: 0.001,
+        //   }
+        // })
+      },
+      (error) => alert(JSON.stringify(error)),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+    )
+  }
 
   render() {
 
@@ -119,11 +130,10 @@ class PlaceOrder extends Component {
       key: null
     })
 
-
     // const { state, actions } = this.props;
     return (
       <View  style={{flex:1,backgroundColor: colors.white}}>
-          <Header style={{backgroundColor: colors.colorLogo}}>
+          <Header style={{backgroundColor: colors.colorBlueOnLeftTopLogo}}>
               <Left style={{flex: 1}}></Left>
 
               <Body style={{flex:1,alignItems:'center'}}>
@@ -135,9 +145,9 @@ class PlaceOrder extends Component {
             {
 
             }
-            <View  style={{flex:1,marginTop:15}}>
+            <View  style={{flex:1}}>
 
-                <StepIndicator
+                {/* <StepIndicator
                   renderStepIndicator={this.renderStepIndicator}
                   customStyles={customStyles}
                   currentPosition={this.state.currentPage}
@@ -148,10 +158,74 @@ class PlaceOrder extends Component {
                       console.log(this.state.currentPage);
                   }}
 
-                />
+                /> */}
+
+                {/* <OrderStepOne></OrderStepOne> */}
+                <Content style={{flex:1}}>
+                      <View style={{flex:1,height:230,paddingTop: this.state.statusBarHeight}}>
+                      <MapView style={styles.map}
+                      showsUserLocation={true}
+                      onMapReady={this._onMapReady}
+                      initialRegion={{
+                        latitude: 10.852014,
+                        longitude: 106.629380,
+                        latitudeDelta: 0.1,
+                        longitudeDelta: 0.1
+                          }}>
+
+                          {!!this.props.location.latitude && !!this.props.location.longitude && <MapView.Marker
+                            coordinate={{"latitude":this.props.location.latitude,"longitude":this.props.location.longitude}}
+                            title={"Your Location"}
+                          />}
+
+                          </MapView>
+
+                      </View>
+                      <Form style={{flex:1,marginLeft: 15,marginRight: 15}}>
+
+                        <Item floatingLabel>
+                          <Icon active name='home' />
+                          <Label>Địa chỉ</Label>
+                          <Input />
+                        </Item>
+
+                        <Item floatingLabel>
+                          <Icon active name='speedometer' />
+                          <Label>Số ký của quần áo</Label>
+                          <Input />
+                        </Item>
+                        <Item floatingLabel>
+                          <Icon active name='user' type="FontAwesome"/>
+                          <Label>Tên người đặt hàng </Label>
+                          <Input />
+                        </Item>
+                        <Item floatingLabel>
+                          <Icon active name='phone' type="FontAwesome" />
+                          <Label>Số điện thoại </Label>
+                          <Input />
+                        </Item>
+                        <View style={{marginTop: 30,marginBottom: 30}}>
+                          <Item>
+                            <Icon name='note' type="MaterialIcons" />
+                            <Label>Ghi chú</Label>
+                          </Item>
+                          <Textarea  style={{marginLeft:15}} bordered rowSpan={4} />
+                        </View>
+                      </Form>
+
+                      <Button style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo}}
+                               block
+                               onPress={()=>{
+                                this.setState({currentPage: 1})
+                                this.viewPager.setPage(1);
+                               }} ><Text style={{color:colors.white,}}>Tiến hành tạo đơn hàng</Text>
+                      </Button>
+
+                  </Content>
+
             </View>
 
-            <View style={{flex:6}}>
+            {/* <View style={{flex:6}}>
                   <ViewPager
                   style={{flex:1}}
                   ref={(viewPager) => {this.viewPager = viewPager}}
@@ -161,7 +235,7 @@ class PlaceOrder extends Component {
                   initialPage={0}
                   >
                   <View>
-                    <OrderStepOne></OrderStepOne>
+
                     <Button style={{ position: 'absolute', bottom:0, left:0, width:'100%',backgroundColor: colors.colorLogo}}
                                block
                                onPress={()=>{
@@ -231,7 +305,7 @@ class PlaceOrder extends Component {
 
                   </ViewPager>
 
-            </View>
+            </View> */}
 
 
 
@@ -269,18 +343,39 @@ class PlaceOrder extends Component {
 }
 
 
+const styles = StyleSheet.create({
+  map : {
+    flex:1,
+  },
+  mapButton: {
+    width: 75,
+    height: 75,
+    borderRadius: 85/2,
+    backgroundColor: 'rgba(252, 253, 253, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: 'black',
+    shadowRadius: 8,
+    shadowOpacity: 0.12,
+    opacity: .6,
+    zIndex: 10,
+  }
 
-
+});
 
 function mapStateToProps(state) {
   return {
-    state: state
+    state: state,
+    location: state.location,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(appActions.actions, dispatch)
+    // actions: bindActionCreators(appActions.actions, dispatch)
+    onLocationChanged: (location) => {
+      dispatch(appActions.actions.locationChanged(location));
+    }
   };
 }
 
