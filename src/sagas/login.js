@@ -14,7 +14,8 @@ function* loginFacebookFlow(action){
       console.log(fbToken);
       if(fbToken){
             const response = yield Api.loginFacebookApi(fbToken);
-            let token = response.account.token
+            let token = response.data.account.token;
+            console.log(token);
             if(token){
               // yield call(AsyncStorage.setItem, "token", token);
                 yield put({ type: FACEBOOK_LOGIN_SUCCEED, results: {message: 'ok', info : response} });
@@ -25,6 +26,7 @@ function* loginFacebookFlow(action){
 
       }
     }catch(e){
+      console.log(e);
       yield put({ type: FACEBOOK_LOGIN_FAILED, error: e });
 
     }

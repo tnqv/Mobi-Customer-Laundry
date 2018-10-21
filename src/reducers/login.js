@@ -62,18 +62,15 @@ export default function (state = initialState, action) {
       };
 
     case FACEBOOK_LOGIN_SUCCEED:
-      console.log(action.results.info);
       return {
         ...state,
         loading: false,
         results: action.results,
-        token: action.results.info.account.token,
-        user: action.results.info.user,
+        token: action.results.info.data.account.token,
+        user: action.results.info.data.user,
       };
 
     case FACEBOOK_LOGIN_FAILED:
-    console.log("failedcmnr");
-    console.log(action.error);
       return {
         ...state,
         loading: false,

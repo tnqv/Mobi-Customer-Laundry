@@ -5,6 +5,8 @@ import { watchApiRequest } from './apiTester';
 import { watchLogin,watchLoadingInfoFromStorage,watchFacebookLogin } from './login';
 import { watchLocationChanged } from './location';
 import { watchServiceReq } from './service';
+import { watchPlacedOrderReq } from './placedorder';
+import { watchNotificationsReq } from './notifications';
 
 
 export default function* rootSaga() {
@@ -15,6 +17,8 @@ export default function* rootSaga() {
     fork(watchFacebookLogin),
     fork(watchLocationChanged),
     fork(watchLoadingInfoFromStorage),
-    fork(watchServiceReq)
+    fork(watchServiceReq),
+    fork(watchPlacedOrderReq),
+    fork(watchNotificationsReq),
   ])
 }

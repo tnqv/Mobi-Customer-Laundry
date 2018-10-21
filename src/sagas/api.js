@@ -1,6 +1,7 @@
 const baseUrl = 'http://ec2-54-169-35-216.ap-southeast-1.compute.amazonaws.com:8080/api/v1';
 
 import axios from 'axios';
+import configureStore from '../store/configureStore'
 
 function* loginFacebookApi(fbToken){
 
@@ -49,8 +50,34 @@ function* getServicesFromApi(){
     return services;
 }
 
+function* getPlacedOrdersFromApi(userId,token){
+  const response = yield axios.get(baseUrl + `/user/${userId}/placedorders`,{
+      headers: {
+          "Authorization": token
+      }
+  });
+  // axios(baseUrl + `/user/${userId}/placedorders`);
+
+  const placedOrders = yield response.status === 200 ? response.data.records : [];
+  return placedOrders;
+}
+
+function* getNotificationsFromApi(userId,token){
+  const response = yield axios.get(baseUrl + `/user/${userId}/notifications`,{
+      headers: {
+          "Authorization": token
+      }
+  });
+  // axios(baseUrl + `/user/${userId}/placedorders`);
+
+  const notifications = yield response.status === 200 ? response.data.records : [];
+  return notifications;
+}
+
 export const Api = {
   loginFromApi,
   loginFacebookApi,
   getServicesFromApi,
+  getPlacedOrdersFromApi,
+  getNotificationsFromApi,
 };

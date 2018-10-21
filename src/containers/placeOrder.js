@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar} from 'react-native';
+import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar, BackHandler} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -12,10 +12,10 @@ import { ViewPager } from 'rn-viewpager';
 import StepIndicator from 'react-native-step-indicator';
 import { NavigationActions } from 'react-navigation';
 import MapView,{ AnimatedRegion } from 'react-native-maps';
+import NavigatorService from '../services/navigator';
 
 
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-
 
 class PlaceOrder extends Component {
 
@@ -43,10 +43,20 @@ class PlaceOrder extends Component {
 
   _onMapReady = () => this.setState({statusBarHeight: StatusBar.currentHeight})
 
+  _handleBackPress = () => {
+        NavigatorService.goBackToMainTabBar('OrderInfo');
+  }
+
   componentWillMount(){
 
   }
+
+  componentWillUnmount(){
+      BackHandler.removeEventListener('hardwareBackPress',this._handleBackPress);
+  }
+
   componentDidMount(){
+    BackHandler.addEventListener('hardwareBackPress',this._handleBackPress);
     this.watchID = navigator.geolocation.watchPosition(
       position => {
         const { coordinate, routeCoordinates, distanceTravelled } =   this.state;

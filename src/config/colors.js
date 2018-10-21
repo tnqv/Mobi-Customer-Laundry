@@ -23,7 +23,8 @@ const colors = {
   colorBlueAccentOnLeftTopLogo: '#1973BA',
   newPrimaryBlue : '#71afe5',
   newAccentBlue: '#005a9e',
-  newTextInactive: '#c7e0f4'
+  newTextInactive: '#c7e0f4',
+  colorUnreadNotification: '#edf2fa',
 
 };
 export default colors;

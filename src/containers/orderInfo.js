@@ -97,58 +97,87 @@ const getStepIndicatorIconConfig = ({ position, stepStatus }) => {
 };
 
 
+
+function defineStepIndicatorByStatusId (statusId){
+    if(statusId === 1 || statusId === 2){
+          return 0;
+    }else if(statusId === 3 || statusId === 4){
+          return 1;
+    }else if(statusId === 5 || statusId === 6 || statusId ===7){
+          return 2;
+    }else if(statusId === 8){
+          return 3;
+    }else if(statusId === 9){
+          return 4;
+    }
+
+}
+
+
 class OrderInfo extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       active: 'true',
       data : [
-          {
-            "time_placed": "0001-01-01T00:00:00Z",
-            "note": "asdasd",
-            "status": 1,
-            "user_id": 1,
-            "capacity": 14,
-            "estimated_capacity": 25,
-            "delivery_address": "test xiu",
-            "delivery_latitude": 1.23333,
-            "delivery_longitude": 1.44444,
-            "total": 200000,
-            "priority": 0,
-            "order_code": "123457799"
+        {
+          "store_id": 0,
+          "time_placed": "2018-10-16T00:00:00+07:00",
+          "detail": "",
+          "current_status_id": 1,
+          "order_status_list": [
+              {
+                  "status_id": 1,
+                  "user_id": 15,
+                  "status_changed_time": "0001-01-01T00:00:00Z",
+                  "description": "User xx vừa mới tạo order"
+              }
+          ],
+          "user_id": 15,
+          "capacity": 0,
+          "estimated_capacity": 5,
+          "delivery_address": "",
+          "delivery_latitude": 0,
+          "delivery_longitude": 0,
+          "total": 30000,
+          "priority": 0,
+          "order_code": "ABC123",
+          "review_id": 0
         },
         {
-          "time_placed": "0001-01-01T00:00:00Z",
-          "note": "asdasd",
-          "status": 1,
-          "user_id": 1,
-          "capacity": 14,
-          "estimated_capacity": 25,
-          "delivery_address": "test xiu",
-          "delivery_latitude": 1.23333,
-          "delivery_longitude": 1.44444,
-          "total": 200000,
+          "store_id": 0,
+          "time_placed": "2018-10-16T00:00:00+07:00",
+          "detail": "",
+          "current_status_id": 1,
+          "order_status_list": [
+              {
+                  "status_id": 5,
+                  "user_id": 15,
+                  "status_changed_time": "0001-01-01T00:00:00Z",
+                  "description": "User xx vừa mới tạo order"
+              }
+          ],
+          "user_id": 15,
+          "capacity": 0,
+          "estimated_capacity": 5,
+          "delivery_address": "",
+          "delivery_latitude": 0,
+          "delivery_longitude": 0,
+          "total": 30000,
           "priority": 0,
-          "order_code": "123457799"
-        },
-        {
-          "time_placed": "0001-01-01T00:00:00Z",
-          "note": "asdasd",
-          "status": 1,
-          "user_id": 1,
-          "capacity": 14,
-          "estimated_capacity": 25,
-          "delivery_address": "test xiu",
-          "delivery_latitude": 1.23333,
-          "delivery_longitude": 1.44444,
-          "total": 200000,
-          "priority": 0,
-          "order_code": "123457799"
+          "order_code": "ABC123",
+          "review_id": 0
         }
       ]
     };
   }
 
+  componentDidMount(){
+        let tokenFromState = this.props.login.token;
+        let userIdFromState = this.props.login.user.ID;
+        this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState});
+  }
   _renderStepIndicator = params => (
 
     // <MaterialIcon {...getStepIndicatorIconConfig(params)} />
@@ -170,20 +199,20 @@ class OrderInfo extends Component {
               <Left style={{flexDirection: 'row', textAlign: 'left', textAlignVertical: 'center',flex:2}}>
                   <Text style={{color: colors.gray, fontWeight: 'bold',fontSize:18}}>Mã hoá đơn</Text>
                   <Text> - </Text>
-                  <Text style={{color: colors.gray}}>#2411244345</Text>
+                  <Text style={{color: colors.gray}}>#{item.order_code}</Text>
               </Left>
               <Right style={{flex:1}}>
-                <Text>42.000đ</Text>
+                <Text>{item.total}đ</Text>
               </Right>
             </View>
             <CardItem bordered style={{marginLeft: 10}}>
-                <Text style={{color: colors.colorBlueOnLeftTopLogo}}>Đơn hàng của bạn đã được xác nhận</Text>
+                <Text style={{color: colors.colorBlueOnLeftTopLogo}}>{item.order_status_list[0].description}</Text>
             </CardItem>
             <View style={{marginTop: 20, marginBottom: 20}}>
               <StepIndicator
                       renderStepIndicator={this._renderStepIndicator}
                       customStyles={customStyles}
-                      currentPosition={1}
+                      currentPosition={defineStepIndicatorByStatusId(item.order_status_list[0].status_id)}
                       labels={labels}
                       stepCount={5}
                     />
@@ -229,7 +258,7 @@ class OrderInfo extends Component {
 
         <FlatList
           style={{ flex: 1 }}
-          data={this.state.data}
+          data={this.props.placedorders.data}
           keyExtractor={(item, index) => index.toString()}
           renderItem={this._renderItem}
         />
@@ -272,12 +301,16 @@ function mapStateToProps(state) {
   return {
     state: state,
     login: state.login,
+    placedorders: state.placedorders,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(appActions.actions, dispatch)
+    // actions: bindActionCreators(appActions.actions, dispatch)
+      onLoadOrders: (params) => {
+        dispatch(appActions.actions.placedOrdersRequest(params));
+      },
   };
 }
 

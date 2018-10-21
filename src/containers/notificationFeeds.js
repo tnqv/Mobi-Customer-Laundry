@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,FlatList} from 'react-native';
+import {View,FlatList , StyleSheet} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import colors from '../config/colors';
@@ -10,38 +10,40 @@ import {Container,Header,Left,Body,Title,Text,Right, Content,List,ListItem,Icon,
 class NotificationFeeds extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-        data : [
-          {
-            "test":'test',
-          },
-          {
-            "test":'test',
-          },
-          {
-            "test":'test',
-          }
-        ],
-    }
+    // this.state = {
+    //     data : [
+    //       {
+    //         "notification_type_id": 1,
+    //         "read": false,
+    //         "content": "Bạn vừa tạo đơn hàng mới",
+    //         "user_id": 15
+    //       },
+    //     ],
+    // }
+  }
+  componentDidMount(){
+    let tokenFromState = this.props.login.token;
+    let userIdFromState = this.props.login.user.ID;
+    this.props.onLoadNotifications({userId : userIdFromState, token : tokenFromState});
   }
 
   _renderItem = ({item,index,section}) => {
     return (
-      <ListItem avatar>
-        <Left>
-            <Button style={{ backgroundColor: colors.colorBlueOnLeftTopLogo }}>
-              <Icon name="truck" type="FontAwesome"></Icon>
-            </Button>
-            {/* <Icon name="truck" type="FontAwesome" style={{fontSize: 32, color: 'red'}}></Icon> */}
-        </Left>
-        <Body>
-          <Text>Đơn hàng của bạn vừa được giặt</Text>
-          <Text note>Đơn hàng của bạn hiện tại đang trong trạng thái giặt giũ</Text>
-        </Body>
-        <Right>
-          <Text note>3:43 pm</Text>
-        </Right>
-      </ListItem>
+        <ListItem avatar style={[ item.read ? styles.read : styles.unread ]}>
+          <Left>
+              <Button style={{ marginLeft: 15,backgroundColor : colors.colorBlueOnLeftTopLogo}}>
+                <Icon name="truck" type="FontAwesome"></Icon>
+              </Button>
+              {/* <Icon name="truck" type="FontAwesome" style={{fontSize: 32, color: 'red'}}></Icon> */}
+          </Left>
+          <Body>
+            <Text>{item.content}</Text>
+            <Text note>{ item.content }</Text>
+          </Body>
+          <Right>
+            <Text note>3:43 pm</Text>
+          </Right>
+        </ListItem>
     )
 
   }
@@ -71,8 +73,8 @@ class NotificationFeeds extends Component {
           <Content style={{ flex: 1 }}>
 
             <FlatList
-              style={{ flex: 1 ,backgroundColor:colors.white}}
-              data={this.state.data}
+              style={{ flex: 1 ,backgroundColor:'transparent'}}
+              data={this.props.notifications.data}
               keyExtractor={(item, index) => index.toString()}
               renderItem={this._renderItem}
             />
@@ -83,16 +85,32 @@ class NotificationFeeds extends Component {
   }
 }
 
+const styles = StyleSheet.create({
+      read: {
+          backgroundColor: colors.white,
+          marginLeft: 0,
+      },
+      unread: {
+          backgroundColor: colors.colorUnreadNotification,
+          marginLeft: 0,
+      }
+});
+
 
 function mapStateToProps(state) {
   return {
-    state: state
+    state: state,
+    login: state.login,
+    notifications : state.notifications,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(appActions.actions, dispatch)
+    // actions: bindActionCreators(appActions.actions, dispatch)
+    onLoadNotifications: (params) => {
+      dispatch(appActions.actions.notificationsRequest(params));
+    },
   };
 }
 

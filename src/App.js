@@ -6,15 +6,13 @@
  * @flow
  */
 import React, { Component } from 'react'
-import { createStore, applyMiddleware,combineReducers} from 'redux';
 import { Provider } from 'react-redux';
-import * as reducers from './reducers';
 import { AppStack } from './navigators/AppNavigator';
-import saga from 'redux-saga';
-import sagaRoot from './sagas';
 import firebase from 'react-native-firebase';
 import { AsyncStorage } from 'react-native';
 import NavigatorService from './services/navigator';
+import sagaRoot from './sagas';
+import configureStore from './store/configureStore';
 
 
 // const instructions = Platform.select({
@@ -24,30 +22,8 @@ import NavigatorService from './services/navigator';
 //     'Shake or press menu button for dev menu',
 // });
 
-// The middlewares which will be used in this App
-const middlewares = [];
-//Combine reducers
-const reducer = combineReducers(reducers);
-//Saga
-const sagaMiddleware = saga();
-
-middlewares.push(sagaMiddleware);
-
-// if (process.env.NODE_ENV === 'development') {
-//   const logger = createLogger();
-//   middlewares.push(logger);
-// }
-
-const store = createStore(
-  reducer,
-  applyMiddleware(...middlewares)
-);
-
-
-
-let value = {};
-
-sagaMiddleware.run(sagaRoot);
+const store = configureStore()
+store.runSaga(sagaRoot);
 
 class App extends Component {
 	constructor(props) {
