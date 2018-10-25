@@ -4,6 +4,7 @@ import { createBottomTabNavigator,createStackNavigator,StackNavigator } from 're
 import OrderInfo from '../containers/orderInfo';
 import ServiceInfo from '../containers/serviceInfo';
 import SampleApp from '../containers/sampleApp';
+import OrderDetail from '../containers/orderDetail';
 import NotificationFeeds from '../containers/notificationFeeds';
 import Settings from '../containers/settings';
 import LoginPage from '../containers/loginPage';
@@ -41,7 +42,13 @@ export const OrderStack = createStackNavigator(
          navigationOptions: {
           tabBarVisible: false,
          }
-      }
+      },
+      OrderDetail: {
+          screen: OrderDetail,
+          navigationOptions: {
+            tabBarVisible: false,
+          }
+      },
   },
   {
       initialRouteName: 'OrderInfo',
@@ -56,10 +63,18 @@ OrderStack.navigationOptions = ({navigation}) => {
    let routeName = navigation.state.routes[navigation.state.index].routeName;
 
    if(routeName === 'LoginView') {
+
      tabBarVisible = false;
      header = null;
+
    }else if(routeName === 'PlaceOrderView'){
-    tabBarVisible = false;
+
+     tabBarVisible = false;
+
+   }else if(routeName === 'OrderDetail'){
+
+     tabBarVisible = false;
+
    }
    return {
      tabBarVisible,
@@ -106,6 +121,7 @@ export const MainTabBar = createBottomTabNavigator(
     }
   },
   {
+    stateName: 'MainTabBar',
     tabBarOptions: {
       activeTintColor: colors.colorBlueAccentOnLeftTopLogo,
     }

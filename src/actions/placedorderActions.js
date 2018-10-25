@@ -21,3 +21,24 @@ export function placedOrdersRequestFailed(payload) {
     payload: payload
   }
 }
+
+export function createNewPlacedOrderRequest(payload){
+  return {
+    type: types.CREATE_NEW_ORDER,
+    payload: payload
+  }
+}
+
+export function createNewPlacedOrderSucceed(payload){
+  return {
+    type: types.CREATE_NEW_ORDER_SUCCEED,
+    payload: payload
+  }
+}
+
+export function createNewPlacedOrderFailed(payload){
+  return {
+    type: types.CREATE_NEW_ORDER_FAILED,
+    payload: payload
+  }
+}

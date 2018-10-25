@@ -4,6 +4,7 @@ import { put, takeLatest,takeEvery } from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
 import NavigatorService from '../services/navigator';
 import { Api } from './api';
+import deviceStorage from '../services/deviceStorage';
 
 function* loginFacebookFlow(action){
     console.log("facebook flow");
@@ -11,15 +12,17 @@ function* loginFacebookFlow(action){
     try {
 
       let fbToken = action.payload.fbToken.accessToken;
-      console.log(fbToken);
       if(fbToken){
             const response = yield Api.loginFacebookApi(fbToken);
             let token = response.data.account.token;
-            console.log(token);
             if(token){
               // yield call(AsyncStorage.setItem, "token", token);
                 yield put({ type: FACEBOOK_LOGIN_SUCCEED, results: {message: 'ok', info : response} });
-                yield put({ type: 'Navigate', na: NavigatorService.navigate('PlaceOrderView')});
+                if(action.payload.from === 'orderInfo'){
+                  yield put({ type: 'Navigate', na: NavigatorService.navigate('PlaceOrderView')});
+                }else {
+                  yield put({ type: 'Navigate', na: NavigatorService.goBackToMainTabBar('OrderInfo')});
+                }
             }else{
                 yield put({ type: FACEBOOK_LOGIN_FAILED, error: response.error });
             }

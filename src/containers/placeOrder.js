@@ -13,6 +13,7 @@ import StepIndicator from 'react-native-step-indicator';
 import { NavigationActions } from 'react-navigation';
 import MapView,{ AnimatedRegion } from 'react-native-maps';
 import NavigatorService from '../services/navigator';
+import Geocoder from 'react-native-geocoder';
 
 
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -21,6 +22,9 @@ class PlaceOrder extends Component {
 
   constructor(props) {
     super(props);
+    // this.state = { usernameInput: '', passwordInput: '' };
+
+    // this.onCreatedPressed = this.onCreatedPressed.bind(this);
     this.state = {
       currentPage:0,
       routeCoordinates: [],
@@ -29,7 +33,17 @@ class PlaceOrder extends Component {
       coordinate: new AnimatedRegion({
        latitude: this.props.location.latitude,
        longitude: this.props.location.longitude,
-      })
+      }),
+      mapRegion: null,
+      lastLat: null,
+      lastLong: null,
+      capacity: '',
+      deliveryAddress : '',
+      deliveryLongitude: '',
+      deliveryLatitude: '',
+      receiverName: '',
+      receiverPhone: '',
+      note: '',
     }
   }
 
@@ -53,6 +67,8 @@ class PlaceOrder extends Component {
 
   componentWillUnmount(){
       BackHandler.removeEventListener('hardwareBackPress',this._handleBackPress);
+      navigator.geolocation.clearWatch(this.watchID);
+
   }
 
   componentDidMount(){
@@ -76,71 +92,66 @@ class PlaceOrder extends Component {
          } else {
            coordinate.timing(newCoordinate).start();
          }
+         let region = {
+          latitude:       newCoordinate.latitude,
+          longitude:      newCoordinate.longitude,
+          latitudeDelta:  0.00922*1.5,
+          longitudeDelta: 0.00421*1.5
+        }
+        this.onRegionChange(region, region.latitude, region.longitude);
+        //  this.props.onLocationChanged(newCoordinate);
 
-         this.props.onLocationChanged(newCoordinate);
-
-         this.setState({
-          //  latitude,
-          //  longitude,
-           routeCoordinates: routeCoordinates.concat([newCoordinate]),
-           prevLatLng: newCoordinate
-         });
+        //  this.setState({
+        //   //  latitude,
+        //   //  longitude,
+        //    routeCoordinates: routeCoordinates.concat([newCoordinate]),
+        //    prevLatLng: newCoordinate
+        //  });
        },
        error => console.log(error),
        { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
     );
   }
 
+  async onRegionChange(region, lastLat, lastLong) {
+    try{
+      if(lastLat && lastLong){
+        let location = {
+          lat: lastLat,
+          lng: lastLong
+        }
+        const res = await Geocoder.geocodePosition(location);
+        if(typeof res != 'undefined' && res){
+          if(res.length > 0){
+            let address = res[0].formattedAddress;
+            this.setState({
+                deliveryAddress : address,
+            });
+          }
 
-  onPageChange(position){
-    this.setState({currentPage: position});
-  }
+        }
+      }
 
-  goToPage2(){
-    this.setState({currentPage: 2});
-  }
+    }catch(error){
+      console.log(error);
+    }
 
-  goToPage3(){
-    this.setState({currentPage: 3});
+    this.setState({
+      mapRegion: region,
+      // If there are no new values set the current ones
+      lastLat: lastLat || this.state.lastLat,
+      lastLong: lastLong || this.state.lastLong
+    });
+
+
   }
 
   renderStepIndicator = params => (
     <MaterialIcon {...getStepIndicatorIconConfig(params)} />
   );
 
-
-  _findMe(){
-    navigator.geolocation.getCurrentPosition(
-      ({coords}) => {
-        // const {latitude, longitude} = coords
-
-        this.props.onLocationChanged(coords);
-        // this.setState({
-        //   position: {
-        //     latitude,
-        //     longitude,
-        //   },
-        //   region: {
-        //     latitude,
-        //     longitude,
-        //     latitudeDelta: 0.005,
-        //     longitudeDelta: 0.001,
-        //   }
-        // })
-      },
-      (error) => alert(JSON.stringify(error)),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
-    )
-  }
-
   render() {
 
-    // const { goBack } = this.props.navigation;
-    const backAction = NavigationActions.back({
-      key: null
-    })
-
-    // const { state, actions } = this.props;
     return (
       <View  style={{flex:1,backgroundColor: colors.white}}>
           <Header style={{backgroundColor: colors.colorBlueOnLeftTopLogo}}>
@@ -156,25 +167,15 @@ class PlaceOrder extends Component {
 
             }
             <View  style={{flex:1}}>
-
-                {/* <StepIndicator
-                  renderStepIndicator={this.renderStepIndicator}
-                  customStyles={customStyles}
-                  currentPosition={this.state.currentPage}
-                  labels={labels}
-                  stepCount={4}
-                  onPress={(step)=>{
-                      console.log(this.viewPager.setPage(step));
-                      console.log(this.state.currentPage);
-                  }}
-
-                /> */}
-
-                {/* <OrderStepOne></OrderStepOne> */}
                 <Content style={{flex:1}}>
                       <View style={{flex:1,height:230,paddingTop: this.state.statusBarHeight}}>
                       <MapView style={styles.map}
                       showsUserLocation={true}
+                      showsMyLocationButton={true}
+                      region={this.state.mapRegion}
+                      showsUserLocation={true}
+                      followUserLocation={true}
+                      onRegionChange={this.onRegionChange.bind(this)}
                       onMapReady={this._onMapReady}
                       initialRegion={{
                         latitude: 10.852014,
@@ -183,9 +184,9 @@ class PlaceOrder extends Component {
                         longitudeDelta: 0.1
                           }}>
 
-                          {!!this.props.location.latitude && !!this.props.location.longitude && <MapView.Marker
-                            coordinate={{"latitude":this.props.location.latitude,"longitude":this.props.location.longitude}}
-                            title={"Your Location"}
+                          {!!this.state.lastLat && !!this.state.lastLong && <MapView.Marker
+                            coordinate={{"latitude":this.state.lastLat,"longitude":this.state.lastLong}}
+                            title={"Địa điểm của bạn"}
                           />}
 
                           </MapView>
@@ -195,158 +196,94 @@ class PlaceOrder extends Component {
 
                         <Item floatingLabel>
                           <Icon active name='home' />
-                          <Label>Địa chỉ</Label>
-                          <Input />
+                          <Label>Địa chỉ*</Label>
+                          <Input
+                            onChangeText={(text) => this.setState({ deliveryAddress: text })}
+                            value={this.state.deliveryAddress} />
                         </Item>
 
                         <Item floatingLabel>
                           <Icon active name='speedometer' />
-                          <Label>Số ký của quần áo</Label>
-                          <Input />
+                          <Label>Số ký của quần áo*</Label>
+                          <Input
+                          onChangeText={(text) => this.setState({ capacity: text })}
+                          value={this.state.capacity} />
                         </Item>
                         <Item floatingLabel>
                           <Icon active name='user' type="FontAwesome"/>
-                          <Label>Tên người đặt hàng </Label>
-                          <Input />
+                          <Label>Tên người đặt hàng* </Label>
+                          <Input
+                            onChangeText={(text) => this.setState({ receiverName: text })}
+                            value={this.state.receiverName}/>
                         </Item>
                         <Item floatingLabel>
                           <Icon active name='phone' type="FontAwesome" />
-                          <Label>Số điện thoại </Label>
-                          <Input />
+                          <Label>Số điện thoại* </Label>
+                          <Input
+                            onChangeText={(text) => this.setState({ receiverPhone: text })}
+                            value={this.state.receiverPhone}/>
                         </Item>
                         <View style={{marginTop: 30,marginBottom: 30}}>
                           <Item>
                             <Icon name='note' type="MaterialIcons" />
                             <Label>Ghi chú</Label>
                           </Item>
-                          <Textarea  style={{marginLeft:15}} bordered rowSpan={4} />
+                          <Textarea  style={{marginLeft:15}} bordered rowSpan={4}
+                                     onChangeText={(text) => this.setState({ note: text })}
+                                     value={this.state.note}/>
                         </View>
                       </Form>
 
                       <Button style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo}}
                                block
                                onPress={()=>{
-                                this.setState({currentPage: 1})
-                                this.viewPager.setPage(1);
-                               }} ><Text style={{color:colors.white,}}>Tiến hành tạo đơn hàng</Text>
+                                  let capacityReq = this.state.capacity;
+                                  let deliveryAddrReq= this.state.deliveryAddress;
+                                  let deliveryLatitudeReq = this.state.lastLat;
+                                  let deliveryLongitudeReq = this.state.lastLong;
+                                  let receiverNameReq = this.state.receiverName;
+                                  let receiverPhoneReq = this.state.receiverPhone;
+                                  let noteReq = this.state.note;
+
+                                  if(capacityReq === ''){
+                                    alert('Xin vui lòng nhập số kg quần áo !');
+                                    return;
+                                  }
+
+                                  if(deliveryAddrReq === ''){
+                                    alert('Xin vui lòng nhập địa chỉ giao/nhận đồ');
+                                    return;
+                                  }
+
+                                  if(deliveryLatitudeReq === '' || deliveryLongitudeReq === ''){
+                                    alert('Địa chỉ trên bản đồ không hợp lệ');
+                                    return;
+                                  }
+
+                                  if(receiverNameReq === '' || receiverPhoneReq === ''){
+                                    alert('Xin vui lòng nhập tên và số điện thoại người tạo đơn');
+                                    return;
+                                  }
+
+                                  let placedOrder = {
+                                    'estimated_capacity' : parseInt(capacityReq),
+                                    'delivery_address' : deliveryAddrReq,
+                                    'delivery_latitude' : deliveryLatitudeReq,
+                                    'delivery_longitude': deliveryLongitudeReq,
+                                    'receiver_name': receiverNameReq,
+                                    'receiver_phone': receiverPhoneReq,
+                                    'note': noteReq,
+                                    'user_id': parseInt(this.props.login.user.ID),
+                                  }
+                                  console.log(placedOrder);
+                                  this.props.onCreatedPressed(this.props.login.token,placedOrder);
+                               }} >
+                          <Text style={{color:colors.white,}}>Tiến hành tạo đơn hàng</Text>
                       </Button>
 
                   </Content>
 
             </View>
-
-            {/* <View style={{flex:6}}>
-                  <ViewPager
-                  style={{flex:1}}
-                  ref={(viewPager) => {this.viewPager = viewPager}}
-                  onPageSelected={(page) => {this.setState({currentPage:page.position})}}
-                  // dataSource={this.state.dataSource}
-                  horizontalScroll={false}
-                  initialPage={0}
-                  >
-                  <View>
-
-                    <Button style={{ position: 'absolute', bottom:0, left:0, width:'100%',backgroundColor: colors.colorLogo}}
-                               block
-                               onPress={()=>{
-                                this.setState({currentPage: 1})
-                                this.viewPager.setPage(1);
-                               }} ><Text style={{color:colors.white,}}>Tiếp tục</Text>
-                    </Button>
-                  </View>
-
-                  <View>
-                    <OrderStepTwo></OrderStepTwo>
-                    <Button style={{ position: 'absolute', bottom:0, left:0, width:'100%',backgroundColor: colors.colorLogo}}
-                               block
-                               onPress={()=>{
-                                  this.setState({currentPage: 2})
-                                  this.viewPager.setPage(2);
-                              }} ><Text style={{color:colors.white,}}>Tiếp tục</Text></Button>
-
-                  </View>
-                  <View>
-                    <OrderStepThree></OrderStepThree>
-                    <Button style={{ position: 'absolute', bottom:0, left:0, width:'100%',backgroundColor: colors.colorLogo}}
-                            block
-                            onPress={()=>{
-                              this.setState({currentPage: 3})
-                              this.viewPager.setPage(3);
-                            }}>
-                              <Text style={{color:colors.white,}}>Xác nhận</Text>
-                    </Button>
-                  </View>
-                  <View>
-                      <Image
-                            style={{
-                                      marginTop: 30,
-                                      width: 230,
-                                      height:230,
-                                      justifyContent:'center',
-                                      alignSelf: 'center',
-                                      borderColor: '#d6d7da',
-                                      }}
-                            source={require('../assets/checkbox.png')}>
-                      </Image>
-
-                      <Card style={{marginTop:10,marginLeft:15,marginRight:15}}>
-                              <CardItem header>
-                                    <Text style={{fontWeight: 'bold',fontSize:18}}>
-                                        Đơn hàng của bạn đã đăng ký thành công
-                                    </Text>
-                              </CardItem>
-                              <CardItem>
-                                    <Text>
-                                        Mã đơn hàng: #0123456789 , xin vui lòng giữ mã này để delivery man có thể xác nhận đơn hàng của bạn nhé
-                                    </Text>
-                              </CardItem>
-
-                        </Card>
-                        <Button style={{ position: 'absolute', bottom:0, left:0, width:'100%',backgroundColor: colors.colorLogo}}
-                                      block
-                                      onPress={()=>{
-                                          this.props.navigation.dispatch(backAction);
-                                      }}>
-                                        <Text style={{color:colors.white,}}>Hoàn tất</Text>
-                        </Button>
-                  </View>
-
-
-
-                  </ViewPager>
-
-            </View> */}
-
-
-
-          {/* <StepIndicator
-          style={{flex:2}}
-            customStyles={customStyles}
-            currentPosition={this.state.currentPage}
-            labels={labels}
-            stepCount={4}
-            onPress={(step)=>{
-                console.log(this.viewPager.setPage(step));
-                console.log(this.state.currentPage);
-            }}
-
-          />
-          <ViewPager
-
-          style={{flex:24,backgroundColor: colors.black}}
-          // ref={(viewPager) => {this.viewPager = viewPager}}
-          onPageSelected={(page) => {this.setState({currentPage:page.position})}}
-          // dataSource={this.state.dataSource}
-          indicator={this._renderTabIndicator()}
-          initialPage={1}
-          >
-          <View><Text>asfsaf</Text></View>
-          <View><Text>asfsaf</Text></View>
-          <View><Text>asfsaf</Text></View>
-
-
-
-          </ViewPager> */}
       </View>
     );
   }
@@ -377,6 +314,8 @@ function mapStateToProps(state) {
   return {
     state: state,
     location: state.location,
+    login: state.login,
+    placedorders: state.placedorders
   };
 }
 
@@ -385,6 +324,9 @@ function mapDispatchToProps(dispatch) {
     // actions: bindActionCreators(appActions.actions, dispatch)
     onLocationChanged: (location) => {
       dispatch(appActions.actions.locationChanged(location));
+    },
+    onCreatedPressed: (token,placedOrderModel)=>{
+      dispatch(appActions.actions.createNewPlacedOrderRequest({token: token,params: placedOrderModel}));
     }
   };
 }

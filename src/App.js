@@ -13,6 +13,9 @@ import { AsyncStorage } from 'react-native';
 import NavigatorService from './services/navigator';
 import sagaRoot from './sagas';
 import configureStore from './store/configureStore';
+import Geocoder from 'react-native-geocoder';
+// simply add your google key
+
 
 
 // const instructions = Platform.select({
@@ -24,6 +27,7 @@ import configureStore from './store/configureStore';
 
 const store = configureStore()
 store.runSaga(sagaRoot);
+Geocoder.fallbackToGoogle('AIzaSyDZX1AjUUvJydL7kbBpmar-NUPSuUoStDY');
 
 class App extends Component {
 	constructor(props) {

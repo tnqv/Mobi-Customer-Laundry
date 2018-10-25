@@ -13,10 +13,11 @@ class LoginPage extends Component {
   constructor(props) {
     super(props);
     this.state = { usernameInput: '', passwordInput: '' };
+    this._facebookLogin = this._facebookLogin.bind(this);
 
   }
 
-  async _facebookLogin() {
+  async _facebookLogin(fromScreen) {
     // native_only config will fail in the case that the user has
     // not installed in his device the Facebook app. In this case we
     // need to go for webview.
@@ -30,7 +31,7 @@ class LoginPage extends Component {
       let fbAccessToken = await AccessToken.getCurrentAccessToken();
 
       if(fbAccessToken){
-          this.props.onFacebookLogin(fbAccessToken);
+          this.props.onFacebookLogin({fbToken : fbAccessToken,from : fromScreen});
       }
 
     } catch (nativeError) {
@@ -44,7 +45,7 @@ class LoginPage extends Component {
         let fbAccessToken = await AccessToken.getCurrentAccessToken();
         console.log(fbAccessToken);
         if(fbAccessToken){
-            this.props.onFacebookLogin({fbToken : fbAccessToken});
+            this.props.onFacebookLogin({fbToken : fbAccessToken,from : fromScreen});
         }
 
       } catch (webError) {
@@ -67,6 +68,9 @@ class LoginPage extends Component {
 
   render() {
     // const { state, actions } = this.props;
+    const { navigation } = this.props;
+    const fromScreen = navigation.getParam('from', 'loginButton');
+
     return (
       <Container>
           {
@@ -125,7 +129,7 @@ class LoginPage extends Component {
                                         alert('You must enter username and password');
                                         return;
                                     }
-                                    this.props.onLogin({username: usernameInput, password: passwordInput});
+                                    this.props.onLogin({username: usernameInput, password: passwordInput,from : fromScreen});
                                   }
 
                                   }>
@@ -135,7 +139,7 @@ class LoginPage extends Component {
                           <Button style={{alignSelf: 'stretch', backgroundColor: colors.fbColor, marginTop:15}}
                                   block
                                   primary
-                                  onPress={this._facebookLogin.bind(this)}>
+                                  onPress={() => this._facebookLogin(fromScreen)}>
                             <Image
                               style={{ width: 20, height: 20,}}
                               source={require('../assets/facebook.png')}></Image>
@@ -167,7 +171,7 @@ class LoginPage extends Component {
 
           {
             this.props.account.error ?
-            <Text> Cac </Text> : null
+            <Text> Error occur </Text> : null
           }
 
     </Container>

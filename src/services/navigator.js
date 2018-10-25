@@ -21,10 +21,11 @@ function goBackToMainTabBar(params){
   Promise.all([
     _navigator.dispatch(
       StackActions.reset({
-          index:0,
+          index: 0,
+          // key: keyParams,
           actions: [
             NavigationActions.navigate({
-              routeName: 'OrderInfo',
+              routeName: params,
             }),
           ]
       })

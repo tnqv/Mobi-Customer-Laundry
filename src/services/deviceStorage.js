@@ -1,65 +1,26 @@
+// import { AsyncStorage } from 'react-native';
 
-import { AsyncStorage } from 'react-native';
+// const storage = new Storage({
+// 	// maximum capacity, default 1000
+// 	size: 1000,
 
-export default {
+// 	// Use AsyncStorage for RN apps, or window.localStorage for web apps.
+// 	// If storageBackend is not set, data will be lost after reload.
+// 	storageBackend: AsyncStorage, // for web: window.localStorage
 
-  get: (key) => {
+// 	// expire time, default: 1 day (1000 * 3600 * 24 milliseconds).
+// 	// can be null, which means never expire.
+// 	defaultExpires: 1000 * 3600 * 24,
 
-      return AsyncStorage.getItem(key).then((value) => {
-          return JSON.parse(value);
-      });
+// 	// cache data in the memory. default is true.
+// 	enableCache: true,
 
-  },
+// 	// if data was not found in storage or expired data was found,
+// 	// the corresponding sync method will be invoked returning
+// 	// the latest data.
+// 	sync : {
+// 		// we'll talk about the details later.
+// 	}
+// })
 
-  set: (key, json) => {
-
-      const value = JSON.stringify(json);
-
-      return AsyncStorage.setItem(key, value);
-
-  },
-
-  merge: (key, json) => {
-
-      const value = JSON.stringify(json);
-
-      return AsyncStorage.mergeItem(key, value);
-
-  },
-
-  clear: (key) => {
-
-      return AsyncStorage.removeItem(key);
-
-  }
-
-}
-
-// const deviceStorage = {
-//     // our AsyncStorage functions will go here :)
-//     async saveItem(key, value) {
-//       try {
-//         await AsyncStorage.setItem(key, value);
-//       } catch (error) {
-//         console.log('AsyncStorage Error: ' + error.message);
-//       }
-//     },
-//     async loadJWT() {
-//       try {
-//         const value = await AsyncStorage.getItem('token');
-//         console.log("async value" + value);
-//         if (value == null) {
-//             return '';
-//         }
-
-//         return JSON.parse(value);
-
-//       } catch (error) {
-//         console.log('AsyncStorage Error: ' + error.message);
-//         return '';
-
-//       }
-//     },
-// };
-
-// export default deviceStorage;
+// export default storage;

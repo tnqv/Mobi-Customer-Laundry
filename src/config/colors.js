@@ -25,6 +25,9 @@ const colors = {
   newAccentBlue: '#005a9e',
   newTextInactive: '#c7e0f4',
   colorUnreadNotification: '#edf2fa',
+  orange: "#FF9501",
+  lightGreen: "#90EE90",
+
 
 };
 export default colors;

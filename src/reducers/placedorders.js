@@ -1,9 +1,10 @@
-import { GET_PLACED_ORDER_API,GET_PLACED_ORDER_SUCCEED,GET_PLACED_ORDER_FAILED } from '../actions/actionTypes';
+import { GET_PLACED_ORDER_API,GET_PLACED_ORDER_SUCCEED,GET_PLACED_ORDER_FAILED, CREATE_NEW_ORDER, CREATE_NEW_ORDER_SUCCEED, CREATE_NEW_ORDER_FAILED } from '../actions/actionTypes';
 
 
 
 const initialState = {
   loading: false,
+  createdOrder: {},
   data : {},
   error: {},
 };
@@ -14,18 +15,42 @@ export default function (state = initialState, action) {
       console.log(state);
       return {
         ...state,
+        loading: true,
       }
     case GET_PLACED_ORDER_SUCCEED:
       console.log("success");
       console.log(action.data);
       return {
         ...state,
+        loading: false,
         data: action.data
       }
     case GET_PLACED_ORDER_FAILED:
       console.log("failed" + action.error);
       return {
         ...state,
+        loading: false,
+        error: action.error,
+      }
+    case CREATE_NEW_ORDER:
+      console.log(state);
+      return {
+        ...state,
+        loading: true,
+      }
+    case CREATE_NEW_ORDER_SUCCEED:
+      console.log("success");
+      console.log(action.data);
+      return {
+        ...state,
+        loading: false,
+        createdOrder: action.data
+      }
+    case CREATE_NEW_ORDER_FAILED:
+      console.log("failed" + action.error);
+      return {
+        ...state,
+        loading: false,
         error: action.error,
       }
     default:

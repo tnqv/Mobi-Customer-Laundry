@@ -188,6 +188,7 @@ class OrderInfo extends Component {
 
   _renderItem = ({item,index,section}) => {
     return (
+
       <Card style={{ marginTop: 15, marginBottom: 15, marginLeft: 20, marginRight: 20 }}>
 
             <View style={{marginTop:15,
@@ -205,9 +206,14 @@ class OrderInfo extends Component {
                 <Text>{item.total}đ</Text>
               </Right>
             </View>
+
+            { item.order_status_list.length > 0 ?
             <CardItem bordered style={{marginLeft: 10}}>
-                <Text style={{color: colors.colorBlueOnLeftTopLogo}}>{item.order_status_list[0].description}</Text>
+                <Text style={{color: colors.colorBlueOnLeftTopLogo}}>{(item.order_status_list[0].description === '' || item.order_status_list[0].description === undefined) ? '' : item.order_status_list[0].description}</Text>
             </CardItem>
+              : null }
+
+            { item.order_status_list.length > 0  ?
             <View style={{marginTop: 20, marginBottom: 20}}>
               <StepIndicator
                       renderStepIndicator={this._renderStepIndicator}
@@ -216,14 +222,18 @@ class OrderInfo extends Component {
                       labels={labels}
                       stepCount={5}
                     />
-            </View>
+            </View> : null
+            }
 
             <CardItem footer bordered style={{justifyContent:"flex-end"}}>
                 <Right>
                     <Button style={{borderColor:colors.colorBlueOnLeftTopLogo,
                                     borderWidth: 1,
                                     borderRadius: 4,
-                                    backgroundColor: colors.white}}>
+                                    backgroundColor: colors.white}}
+                            onPress={()=>{
+                                this.props.navigation.navigate('OrderDetail');
+                            }}>
                       <Text style={{color: colors.colorBlueOnLeftTopLogo}}>Chi tiết</Text>
                     </Button>
                 </Right>
@@ -271,14 +281,16 @@ class OrderInfo extends Component {
                   containerStyle={{ }}
                   style={{ backgroundColor: colors.colorBlueOnLeftTopLogo }}
                   position="bottomRight"
-                  // onPress={() => this.props.navigation.navigate('LoginView')}>
+                  // onPress={() => this.props.navigation.navigate('OrderDetail')}
                   onPress={async () => {
                         const granted = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION );
 
                         if (granted) {
                           console.log(this.props.login);
                           if(this.props.login.token === ''){
-                            this.props.navigation.navigate('LoginView');
+                            this.props.navigation.navigate('LoginView',{
+                              from: 'orderInfo',
+                            });
                           }else{
                             this.props.navigation.navigate('PlaceOrderView');
                           }

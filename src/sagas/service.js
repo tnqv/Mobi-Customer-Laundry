@@ -4,6 +4,7 @@ import { NavigationActions } from 'react-navigation';
 import { put, takeLatest,takeEvery,call } from 'redux-saga/effects';
 import { Api } from './api';
 import NavigatorService from '../services/navigator';
+import deviceStorage from '../services/deviceStorage';
 
 
 

@@ -19,7 +19,7 @@ function* loginFacebookApi(fbToken){
   // const response = yield axios.post(baseUrl + '/account/facebook/auth',JSON.stringify(requestBody),config);
 
   console.log(response);
-  const accountInfo = yield response.status === 200 ? response : []
+  const accountInfo = yield response.status === 200 || response.status === 201 ? response : []
 
   return accountInfo;
 }
@@ -74,10 +74,31 @@ function* getNotificationsFromApi(userId,token){
   return notifications;
 }
 
+function* createNewOrder(token,paramsReq){
+    let formData = new FormData();
+    for ( let key in paramsReq ) {
+        formData.append(key, paramsReq[key]);
+    }
+    const response = yield axios({
+      method: 'post',
+      url: baseUrl + '/placedorder/',
+      headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization" : token,
+      },
+      data: formData,
+    });
+
+    const createdOrderInfo = yield response.status === 200 ? response : {}
+    console.log(createdOrderInfo);
+    return createdOrderInfo;
+}
+
 export const Api = {
   loginFromApi,
   loginFacebookApi,
   getServicesFromApi,
   getPlacedOrdersFromApi,
   getNotificationsFromApi,
+  createNewOrder,
 };
