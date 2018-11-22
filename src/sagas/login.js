@@ -1,10 +1,12 @@
-import { API_LOGIN_REQUEST, API_LOGIN_REQUEST_SUCCEEDED, API_REQUEST_FAILED, FACEBOOK_LOGIN_FAILED, FACEBOOK_LOGIN_SUCCEED, FACEBOOK_LOGIN,LOAD_TOKEN_FROM_STORAGE_SUCCEEDED,LOAD_TOKEN_FROM_STORAGE_FAILED,LOAD_TOKEN_FROM_STORAGE } from '../actions/actionTypes';
+import { API_LOGIN_REQUEST, API_LOGIN_REQUEST_SUCCEEDED, API_REQUEST_FAILED, FACEBOOK_LOGIN_FAILED, FACEBOOK_LOGIN_SUCCEED, FACEBOOK_LOGIN,LOAD_TOKEN_FROM_STORAGE_SUCCEEDED,LOAD_TOKEN_FROM_STORAGE_FAILED,LOAD_TOKEN_FROM_STORAGE, API_FCM_UPDATE_REQUEST } from '../actions/actionTypes';
 //Saga effects
 import { put, takeLatest,takeEvery } from 'redux-saga/effects';
 import { AsyncStorage } from 'react-native';
 import NavigatorService from '../services/navigator';
 import { Api } from './api';
 import deviceStorage from '../services/deviceStorage';
+import firebase from 'react-native-firebase';
+import * as appActions from '../actions';
 
 function* loginFacebookFlow(action){
     console.log("facebook flow");
@@ -18,6 +20,11 @@ function* loginFacebookFlow(action){
             if(token){
               // yield call(AsyncStorage.setItem, "token", token);
                 yield put({ type: FACEBOOK_LOGIN_SUCCEED, results: {message: 'ok', info : response} });
+
+                let fcmToken = yield firebase.messaging().getToken();
+
+                yield put(appActions.actions.updateFcmTokenRequest({ accountId: response.data.account.id,token: token, fcmToken: fcmToken }));
+
                 if(action.payload.from === 'orderInfo'){
                   yield put({ type: 'Navigate', na: NavigatorService.navigate('PlaceOrderView')});
                 }else {
@@ -40,18 +47,20 @@ function* loginFlow(action){
   try{
     let emailFromAction = action.payload.username;
     let passwordFromAction = action.payload.password;
-    console.log(emailFromAction + " " + passwordFromAction);
+
     const response = yield Api.loginFromApi(emailFromAction,passwordFromAction);
 
-    yield put({ type: API_LOGIN_REQUEST_SUCCEEDED, results: {message: 'ok', info: response} });
     let token = response.account.token;
     if (token) {
       console.log("success: ", token);
 
       // This is a blocking call that would wait for the token to be stored,
       // or for the Promise to be resolved before proceeding to the next line
-        yield call(AsyncStorage.setItem, "token", token);
+        // yield call(AsyncStorage.setItem, "token", token);
 
+
+
+        yield put(appActions.actions.updateFcmTokenRequest({ accountId: response.data.account.id,token: token, fcmToken: fcmToken }));
         yield put({ type: API_LOGIN_REQUEST_SUCCEEDED, result: response });
     } else {
       if (result.error) {

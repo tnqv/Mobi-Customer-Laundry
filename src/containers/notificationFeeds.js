@@ -28,6 +28,21 @@ class NotificationFeeds extends Component {
   }
 
   _renderItem = ({item,index,section}) => {
+    let date = new Date(item.CreatedAt);
+    let formatOptions = {
+            day:    '2-digit',
+            month:  '2-digit',
+            year:   'numeric',
+            hour:   '2-digit',
+            minute: '2-digit',
+            hour12: true
+      };
+      let dateString = date.toLocaleDateString('en-US', formatOptions);
+      // => "02/17/2017, 11:32 PM"
+
+      dateString = dateString.replace(',', '')
+                            .replace('PM', 'p.m.')
+                            .replace('AM', 'a.m.');
     return (
         <ListItem avatar style={[ item.read ? styles.read : styles.unread ]}>
           <Left>
@@ -38,11 +53,11 @@ class NotificationFeeds extends Component {
           </Left>
           <Body>
             <Text>{item.content}</Text>
-            <Text note>{ item.content }</Text>
+            <Text note>{ dateString }</Text>
           </Body>
-          <Right>
-            <Text note>3:43 pm</Text>
-          </Right>
+          {/* <Right>
+            <Text note>{dateString}</Text>
+          </Right> */}
         </ListItem>
     )
 
@@ -53,6 +68,21 @@ class NotificationFeeds extends Component {
     // const { state, actions } = this.props;
     return (
       <Container style={{backgroundColor: colors.lightgray}}>
+         {/* {
+             this.props.notifications.loading ?
+                  <Spinner
+                  style={{
+                    width: 100,
+                    height: 100,
+                    left: `50%`,
+                    top: `50%`,
+                    transform: [{ translateX: -50},{translateY: -50 }],
+                    justifyContent:'center',
+                    position: 'absolute',}}
+                  color='blue'>
+                </Spinner> : null
+
+          } */}
           {
             //Header
           }

@@ -5,25 +5,33 @@ import { GET_PLACED_ORDER_API,GET_PLACED_ORDER_SUCCEED,GET_PLACED_ORDER_FAILED, 
 const initialState = {
   loading: false,
   createdOrder: {},
-  data : {},
-  error: {},
+  data : [],
+  error: null,
+  createdOrder: {},
+  success: false,
 };
 
 export default function (state = initialState, action) {
+
   switch (action.type) {
+
     case GET_PLACED_ORDER_API:
       console.log(state);
       return {
         ...state,
         loading: true,
+        error : null,
+        createdOrder: {},
       }
     case GET_PLACED_ORDER_SUCCEED:
-      console.log("success");
-      console.log(action.data);
+      // if(!action.data) action.data = [];
+      // if()
       return {
         ...state,
         loading: false,
-        data: action.data
+        data: action.page === 0  ? [...action.data] : [...state.data,...action.data],
+        error : null,
+        createdOrder: {},
       }
     case GET_PLACED_ORDER_FAILED:
       console.log("failed" + action.error);
@@ -36,6 +44,7 @@ export default function (state = initialState, action) {
       console.log(state);
       return {
         ...state,
+        error : null,
         loading: true,
       }
     case CREATE_NEW_ORDER_SUCCEED:
@@ -44,7 +53,8 @@ export default function (state = initialState, action) {
       return {
         ...state,
         loading: false,
-        createdOrder: action.data
+        error : null,
+        createdOrder: action.data,
       }
     case CREATE_NEW_ORDER_FAILED:
       console.log("failed" + action.error);

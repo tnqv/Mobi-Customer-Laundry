@@ -7,19 +7,21 @@ import { watchLocationChanged } from './location';
 import { watchServiceReq } from './service';
 import { watchPlacedOrderReq,watchCreatePlacedOrderReq } from './placedorder';
 import { watchNotificationsReq } from './notifications';
+import { watchUpdateFcmToken } from './updateFcm'
 
 
 export default function* rootSaga() {
   yield all([
-    fork(watchIncrementAsync),
-    fork(watchApiRequest),
-    fork(watchLogin),
-    fork(watchFacebookLogin),
-    fork(watchLocationChanged),
-    fork(watchLoadingInfoFromStorage),
-    fork(watchServiceReq),
-    fork(watchPlacedOrderReq),
-    fork(watchNotificationsReq),
-    fork(watchCreatePlacedOrderReq),
-  ])
+    watchIncrementAsync,
+    watchApiRequest,
+    watchLogin,
+    watchFacebookLogin,
+    watchLocationChanged,
+    watchLoadingInfoFromStorage,
+    watchServiceReq,
+    watchPlacedOrderReq,
+    watchNotificationsReq,
+    watchCreatePlacedOrderReq,
+    watchUpdateFcmToken,
+  ].map(fork))
 }

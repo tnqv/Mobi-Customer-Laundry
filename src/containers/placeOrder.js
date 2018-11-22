@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar, BackHandler} from 'react-native';
+import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar, BackHandler,NativeModules,PermissionsAndroid} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -7,16 +7,22 @@ import colors from '../config/colors'
 import OrderStepOne from '../components/orderStepOne';
 import OrderStepTwo from '../components/orderStepTwo';
 import OrderStepThree from '../components/orderStepThree';
-import { Card, CardItem, Header, Left, Body, Right, Button, Title,Textarea,Content,Label, Icon, Item, Input,Form } from 'native-base';
+import { Card, CardItem, Header, Left, Body, Right, Button, Title,Textarea,Content,Label, Icon, Item, Input,Form,Spinner } from 'native-base';
 import { ViewPager } from 'rn-viewpager';
 import StepIndicator from 'react-native-step-indicator';
 import { NavigationActions } from 'react-navigation';
-import MapView,{ AnimatedRegion } from 'react-native-maps';
+import MapView,{ AnimatedRegion,Marker } from 'react-native-maps';
 import NavigatorService from '../services/navigator';
 import Geocoder from 'react-native-geocoder';
 
 
+// import SweetAlert from 'react-native-sweet-alert';
+
+
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+// import SweetAlert from 'react-native-sweet-alert';
+
+const SweetAlertNative = NativeModules.RNSweetAlert;
 
 class PlaceOrder extends Component {
 
@@ -26,6 +32,7 @@ class PlaceOrder extends Component {
 
     // this.onCreatedPressed = this.onCreatedPressed.bind(this);
     this.state = {
+      loading: false,
       currentPage:0,
       routeCoordinates: [],
       distanceTravelled: 0,
@@ -44,6 +51,7 @@ class PlaceOrder extends Component {
       receiverName: '',
       receiverPhone: '',
       note: '',
+      marker: {},
     }
   }
 
@@ -71,8 +79,94 @@ class PlaceOrder extends Component {
 
   }
 
+  async _findMe(){
+    if(Platform.OS === 'android'){
+      const granted = await PermissionsAndroid.check("android.permission.ACCESS_FINE_LOCATION");
+      if(!granted){
+        alert("not granted");
+        return;
+      }
+    }
+    navigator.geolocation.getCurrentPosition(async (position) => {
+
+        const { coordinate, routeCoordinates, distanceTravelled } =   this.state;
+        const { latitude, longitude } = position.coords;
+
+        let location = {
+          lat: latitude,
+          lng: longitude
+        }
+        this.getLocationWithGeoLocation(location);
+        //  this.props.onLocationChanged(newCoordinate);
+
+        //  this.setState({
+        //   //  latitude,
+        //   //  longitude,
+        //    routeCoordinates: routeCoordinates.concat([newCoordinate]),
+        //    prevLatLng: newCoordinate
+        //  });
+      },
+      error => console.log(error),
+      { enableHighAccuracy: true, timeout: 20000 }
+
+    );
+  }
+
+  async getLocationWithGeoLocation(location){
+    this.setState({loading:true});
+    const res = await Geocoder.geocodePosition(location);
+    if(typeof res != 'undefined' && res){
+      if(res.length > 0){
+        let address = res[0].formattedAddress;
+        this.setMarkerToMap(location,address);
+        this.setState({
+            deliveryAddress : address,
+            loading: false,
+        });
+      }
+    }
+    console.log(res);
+  }
+
+  setMarkerToMap(location,address){
+      this.setState({
+        marker: {
+          coordinate : {
+              latitude : location.lat,
+              longitude : location.lng,
+          },
+          title: address
+        }
+      })
+  }
+
   componentDidMount(){
     BackHandler.addEventListener('hardwareBackPress',this._handleBackPress);
+    // navigator.geolocation.getCurrentPosition(async (position) => {
+
+    //     const { coordinate, routeCoordinates, distanceTravelled } =   this.state;
+    //     const { latitude, longitude } = position.coords;
+
+    //     let location = {
+    //       lat: latitude,
+    //       lng: longitude
+    //     }
+    //     // console.log(location);
+    //     // getLocationWithGeoLocation(location);
+
+    //     //  this.props.onLocationChanged(newCoordinate);
+
+    //     //  this.setState({
+    //     //   //  latitude,
+    //     //   //  longitude,
+    //     //    routeCoordinates: routeCoordinates.concat([newCoordinate]),
+    //     //    prevLatLng: newCoordinate
+    //     //  });
+    //    },
+    //    error => console.log(error),
+    //    { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+
+    // );
     this.watchID = navigator.geolocation.watchPosition(
       position => {
         const { coordinate, routeCoordinates, distanceTravelled } =   this.state;
@@ -92,13 +186,17 @@ class PlaceOrder extends Component {
          } else {
            coordinate.timing(newCoordinate).start();
          }
-         let region = {
+         let newRegion = {
           latitude:       newCoordinate.latitude,
           longitude:      newCoordinate.longitude,
           latitudeDelta:  0.00922*1.5,
           longitudeDelta: 0.00421*1.5
         }
-        this.onRegionChange(region, region.latitude, region.longitude);
+
+        this.setState({
+            region : newRegion
+        })
+        // this.onRegionChange(region, region.latitude, region.longitude);
         //  this.props.onLocationChanged(newCoordinate);
 
         //  this.setState({
@@ -113,37 +211,105 @@ class PlaceOrder extends Component {
     );
   }
 
-  async onRegionChange(region, lastLat, lastLong) {
-    try{
-      if(lastLat && lastLong){
-        let location = {
-          lat: lastLat,
-          lng: lastLong
-        }
-        const res = await Geocoder.geocodePosition(location);
-        if(typeof res != 'undefined' && res){
-          if(res.length > 0){
-            let address = res[0].formattedAddress;
-            this.setState({
-                deliveryAddress : address,
-            });
-          }
+  // async onRegionChange(region, lastLat, lastLong) {
+  //   try{
+  //     if(lastLat && lastLong){
+  //       let location = {
+  //         lat: lastLat,
+  //         lng: lastLong
+  //       }
+  //       const res = await Geocoder.geocodePosition(location);
+  //       if(typeof res != 'undefined' && res){
+  //         if(res.length > 0){
+  //           let address = res[0].formattedAddress;
+  //           this.setState({
+  //               deliveryAddress : address,
+  //           });
+  //         }
+
+  //       }
+  //     }
+
+  //   }catch(error){
+  //     console.log(error);
+  //   }
+
+  //   this.setState({
+  //     mapRegion: region,
+  //     // If there are no new values set the current ones
+  //     lastLat: lastLat || this.state.lastLat,
+  //     lastLong: lastLong || this.state.lastLong
+  //   });
+
+
+  // }
+
+  _showNormalDialog(placedOrder){
+    SweetAlertNative.showSweetAlert(
+      {
+          title: 'Xác nhận',
+          subTitle: '',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          otherButtonTitle: 'Huỷ bỏ',
+          otherButtonColor: '#dedede',
+          type: 'normal',
+          cancelText: "Huỷ bỏ",
+          contentText: 'Bạn có xác nhận muốn tạo đơn hàng ?',
+          cancellable: true,
+        },
+        successCallback =>{
+          this.props.onCreatedPressed(this.props.login.token,placedOrder);
+
+        },
+        errorCallback => {
 
         }
-      }
+    )
 
-    }catch(error){
-      console.log(error);
-    }
+  }
 
-    this.setState({
-      mapRegion: region,
-      // If there are no new values set the current ones
-      lastLat: lastLat || this.state.lastLat,
-      lastLong: lastLong || this.state.lastLong
-    });
+  showSuccessDialog(message){
+    SweetAlertNative.showSweetAlert(
+      {
+          title: 'Xác nhận',
+          subTitle: '',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          type: 'success',
+          cancelText: "",
+          contentText: message,
+          cancellable: false,
+        },
+        successCallback =>{
+            // alert(successCallback);
+            NavigatorService.goBackToMainTabBar('OrderInfo')
+        },
+        errorCallback => {
+            // alert(errorCallback);
+        }
+    )
+  }
 
-
+  showErrorDialog(message){
+    SweetAlertNative.showSweetAlert(
+      {
+          title: 'Lỗi xảy ra',
+          subTitle: '',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          type: 'error',
+          cancelText: "",
+          contentText: message,
+          cancellable: false,
+        },
+        successCallback =>{
+            // alert(successCallback);
+        },
+        errorCallback => {
+            // alert(errorCallback);
+        }
+    )
   }
 
   renderStepIndicator = params => (
@@ -151,9 +317,40 @@ class PlaceOrder extends Component {
   );
 
   render() {
+    const hitSlop = {
+      top: 15,
+      bottom:15,
+      left:15,
+      right:15,
+    }
 
     return (
       <View  style={{flex:1,backgroundColor: colors.white}}>
+       {
+             this.props.placedorders.loading || this.state.loading ?
+                  <Spinner
+                  style={{
+                    width: 100,
+                    height: 100,
+                    left: `50%`,
+                    top: `50%`,
+                    transform: [{ translateX: -50},{translateY: -50 }],
+                    justifyContent:'center',
+                    position: 'absolute',}}
+                  color='blue'>
+                </Spinner> : null
+
+          }
+          {
+
+            this.props.placedorders.createdOrder.data ?
+            this.showSuccessDialog(`Bạn đã tạo đơn hàng thành công.\n Mã đơn hàng của bạn là  ${this.props.placedorders.createdOrder.data.order_code}` ) : null
+          }
+
+          {
+            this.props.placedorders.error ?
+            this.showErrorDialog(`${this.props.placedorders.error}`) : null
+          }
           <Header style={{backgroundColor: colors.colorBlueOnLeftTopLogo}}>
               <Left style={{flex: 1}}></Left>
 
@@ -168,14 +365,39 @@ class PlaceOrder extends Component {
             }
             <View  style={{flex:1}}>
                 <Content style={{flex:1}}>
-                      <View style={{flex:1,height:230,paddingTop: this.state.statusBarHeight}}>
+                      <View style={{flex:1,height:230}}>
+                      <Text>
+                           Nhấn vào vị trí địa điểm bạn muốn ship tới
+                        </Text>
+                      {/* <TouchableOpacity
+                        hitSlop= {hitSlop}
+                        activeOpacity={0.7}
+                        style={styles.mapButton}
+                        onPress={ () => this._findMe()}>
+                        <Text>
+                           Nhấn vào vị trí địa điểm bạn muốn ship tới
+                        </Text>
+
+                      </TouchableOpacity> */}
+
                       <MapView style={styles.map}
                       showsUserLocation={true}
                       showsMyLocationButton={true}
                       region={this.state.mapRegion}
-                      showsUserLocation={true}
-                      followUserLocation={true}
-                      onRegionChange={this.onRegionChange.bind(this)}
+                      // showsUserLocation={true}
+                      // followUserLocation={true}
+                      onPress={(event) => {
+                        let location = {
+                          lat: event.nativeEvent.coordinate.latitude,
+                          lng: event.nativeEvent.coordinate.longitude,
+                        }
+                        console.log("onpress" );
+                        console.log(location);
+
+                        this.getLocationWithGeoLocation(location);
+
+                      }}
+                      // onRegionChange={this.onRegionChange.bind(this)}
                       onMapReady={this._onMapReady}
                       initialRegion={{
                         latitude: 10.852014,
@@ -184,10 +406,29 @@ class PlaceOrder extends Component {
                         longitudeDelta: 0.1
                           }}>
 
-                          {!!this.state.lastLat && !!this.state.lastLong && <MapView.Marker
-                            coordinate={{"latitude":this.state.lastLat,"longitude":this.state.lastLong}}
+                          {!!this.state.marker.coordinate && <MapView.Marker
+                            coordinate={{"latitude":this.state.marker.coordinate.latitude,"longitude":this.state.marker.coordinate.longitude}}
                             title={"Địa điểm của bạn"}
                           />}
+
+                           {/* {this.state.markers.map((marker, index) => {
+                                const display = {
+                                    title: marker.title
+                                }
+                                return ( */}
+                                  {/* <Marker tracksViewChanges={false}
+                                          // key={index}
+                                          coordinate={this.state.marker.coordinate}
+                                          title={this.state.marker.id}> */}
+
+                                    {/* <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                                      <Animated.View style={[styles.ring, scaleStyle]} />
+                                      <View style={styles.marker} />
+
+                                    </Animated.View> */}
+                                  {/* </Marker> */}
+                                {/* );
+                              })} */}
 
                           </MapView>
 
@@ -234,52 +475,57 @@ class PlaceOrder extends Component {
                         </View>
                       </Form>
 
-                      <Button style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo}}
-                               block
-                               onPress={()=>{
-                                  let capacityReq = this.state.capacity;
-                                  let deliveryAddrReq= this.state.deliveryAddress;
-                                  let deliveryLatitudeReq = this.state.lastLat;
-                                  let deliveryLongitudeReq = this.state.lastLong;
-                                  let receiverNameReq = this.state.receiverName;
-                                  let receiverPhoneReq = this.state.receiverPhone;
-                                  let noteReq = this.state.note;
 
-                                  if(capacityReq === ''){
-                                    alert('Xin vui lòng nhập số kg quần áo !');
-                                    return;
-                                  }
+                      <Button
+                      onPress={()=>{
 
-                                  if(deliveryAddrReq === ''){
-                                    alert('Xin vui lòng nhập địa chỉ giao/nhận đồ');
-                                    return;
-                                  }
+                          let capacityReq = this.state.capacity;
+                          let deliveryAddrReq= this.state.deliveryAddress;
+                          let deliveryLatitudeReq = this.state.marker.coordinate.latitude;
+                          let deliveryLongitudeReq = this.state.marker.coordinate.longitude;
+                          let receiverNameReq = this.state.receiverName;
+                          let receiverPhoneReq = this.state.receiverPhone;
+                          let noteReq = this.state.note;
 
-                                  if(deliveryLatitudeReq === '' || deliveryLongitudeReq === ''){
-                                    alert('Địa chỉ trên bản đồ không hợp lệ');
-                                    return;
-                                  }
+                          if(capacityReq === ''){
+                            alert('Xin vui lòng nhập số kg quần áo !');
+                            return;
+                          }
 
-                                  if(receiverNameReq === '' || receiverPhoneReq === ''){
-                                    alert('Xin vui lòng nhập tên và số điện thoại người tạo đơn');
-                                    return;
-                                  }
+                          if(deliveryAddrReq === ''){
+                            alert('Xin vui lòng nhập địa chỉ giao/nhận đồ');
+                            return;
+                          }
 
-                                  let placedOrder = {
-                                    'estimated_capacity' : parseInt(capacityReq),
-                                    'delivery_address' : deliveryAddrReq,
-                                    'delivery_latitude' : deliveryLatitudeReq,
-                                    'delivery_longitude': deliveryLongitudeReq,
-                                    'receiver_name': receiverNameReq,
-                                    'receiver_phone': receiverPhoneReq,
-                                    'note': noteReq,
-                                    'user_id': parseInt(this.props.login.user.ID),
-                                  }
-                                  console.log(placedOrder);
-                                  this.props.onCreatedPressed(this.props.login.token,placedOrder);
-                               }} >
-                          <Text style={{color:colors.white,}}>Tiến hành tạo đơn hàng</Text>
+                          if(deliveryLatitudeReq === '' || deliveryLongitudeReq === ''){
+                            alert('Địa chỉ trên bản đồ không hợp lệ');
+                            return;
+                          }
+
+                          if(receiverNameReq === '' || receiverPhoneReq === ''){
+                            alert('Xin vui lòng nhập tên và số điện thoại người tạo đơn');
+                            return;
+                          }
+
+                          let placedOrder = {
+                            'estimated_capacity' : parseInt(capacityReq),
+                            'delivery_address' : deliveryAddrReq,
+                            'delivery_latitude' : deliveryLatitudeReq,
+                            'delivery_longitude': deliveryLongitudeReq,
+                            'receiver_name': receiverNameReq,
+                            'receiver_phone': receiverPhoneReq,
+                            'note': noteReq,
+                            'user_id': parseInt(this.props.login.user.ID),
+                          }
+                          console.log("test");
+
+                          this._showNormalDialog(placedOrder);
+                      }}
+                      style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo}}
+                      block>
+                        <Text style={{color:colors.white,}}>Tiến hành tạo đơn hàng</Text>
                       </Button>
+
 
                   </Content>
 
@@ -288,7 +534,6 @@ class PlaceOrder extends Component {
     );
   }
 }
-
 
 const styles = StyleSheet.create({
   map : {

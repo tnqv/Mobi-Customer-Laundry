@@ -51,7 +51,7 @@ class App extends Component {
     const enabled = await firebase.messaging().hasPermission();
     if (enabled) {
 
-        this.getToken();
+        //this.getToken();
     } else {
 
         this.requestPermission();
@@ -85,11 +85,35 @@ class App extends Component {
   }
 
   async createNotificationListeners() {
+    const channel = new firebase.notifications.Android.Channel(
+      'channelId',
+      'Channel Name',
+      firebase.notifications.Android.Importance.Max
+    ).setDescription('A natural description of the channel');
+    firebase.notifications().android.createChannel(channel);
     /*
     * Triggered when a particular notification has been received in foreground
     * */
     this.notificationListener = firebase.notifications().onNotification((notification) => {
         const { title, body } = notification;
+        console.log("onNotification");
+        const localNotification = new firebase.notifications.Notification({
+          sound: 'default',
+          show_in_foreground: true,
+        })
+        //.setNotificationId(notification.notificationId)
+        .setTitle(title)
+        // .setSubtitle(notification.subtitle)
+        .setBody(body)
+        // .setData(notification.data)
+        .android.setChannelId('channelId') // e.g. the id you chose above
+        .android.setSmallIcon('ic_launcher') // create this icon in Android Studio
+        .android.setColor('#000000') // you can set a color here
+        .android.setPriority(firebase.notifications.Android.Priority.High);
+
+      firebase.notifications()
+        .displayNotification(localNotification)
+        .catch(err => console.error(err));
         // this.showAlert(title, body);
     });
 
@@ -98,6 +122,24 @@ class App extends Component {
     * */
     this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
         const { title, body } = notificationOpen.notification;
+        console.log("onNotificationOpened");
+        const localNotification = new firebase.notifications.Notification({
+          sound: 'default',
+          show_in_foreground: true,
+        })
+        //.setNotificationId(notification.notificationId)
+        .setTitle(title)
+        // .setSubtitle(notification.subtitle)
+        .setBody(body)
+        // .setData(notification.data)
+        .android.setChannelId('channelId') // e.g. the id you chose above
+        .android.setSmallIcon('ic_launcher') // create this icon in Android Studio
+        .android.setColor('#000000') // you can set a color here
+        .android.setPriority(firebase.notifications.Android.Priority.High);
+
+      firebase.notifications()
+        .displayNotification(localNotification)
+        .catch(err => console.error(err));
         // this.showAlert(title, body);
     });
 
@@ -107,6 +149,8 @@ class App extends Component {
     const notificationOpen = await firebase.notifications().getInitialNotification();
     if (notificationOpen) {
         const { title, body } = notificationOpen.notification;
+        console.log("initialNotificaiton");
+
         // this.showAlert(title, body);
     }
     /*
@@ -114,7 +158,27 @@ class App extends Component {
     * */
     this.messageListener = firebase.messaging().onMessage((message) => {
       //process data message
-      console.log(JSON.stringify(message));
+      // const { title, body } = message;
+      console.log("onMessage");
+
+      const localNotification = new firebase.notifications.Notification({
+        sound: 'default',
+        show_in_foreground: true,
+      })
+      //.setNotificationId(notification.notificationId)
+      .setTitle(message)
+      // .setSubtitle(notification.subtitle)
+      .setBody(message)
+      // .setData(notification.data)
+      .android.setChannelId('channelId') // e.g. the id you chose above
+      .android.setSmallIcon('ic_launcher') // create this icon in Android Studio
+      .android.setColor('#000000') // you can set a color here
+      .android.setPriority(firebase.notifications.Android.Priority.High);
+
+    firebase.notifications()
+      .displayNotification(localNotification)
+      .catch(err => console.error(err));
+
     });
   }
 

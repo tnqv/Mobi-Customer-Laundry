@@ -156,6 +156,7 @@ repositories {
 }
 
 dependencies {
+    compile project(':react-native-sweet-alert')
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile(project(':react-native-firebase')) {
         transitive = false
@@ -166,6 +167,8 @@ dependencies {
         exclude group: 'com.google.android.gms', module: 'play-services-base'
         exclude group: 'com.google.android.gms', module: 'play-services-maps'
     }
+    compile 'com.github.thomper:sweet-alert-dialog:v1.4.0'
+//    compile 'cn.pedant.sweetalert:library:1.3'
     compile project(':react-native-fbsdk')
     compile project(':react-native-geocoder')
     implementation project(':react-native-maps')

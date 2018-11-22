@@ -6,16 +6,12 @@ import * as appActions from '../actions';
 import colors from '../config/colors';
 
 import Swiper from 'react-native-swiper';
-
-
-const deviceHeight = Dimensions.get("window").height;
-const deviceWidth = Dimensions.get("window").width;
-const platform = Platform.OS;
-
 import { Container, Header, Left, Body, Right, Thumbnail, Card, CardItem, Title,Content, Tabs,Tab, ListItem } from 'native-base';
-import MapView from 'react-native-maps';
+import MapView,{Marker} from 'react-native-maps';
 
 
+const windowWidth = Dimensions.get('window').width;
+const platform = Platform.OS;
 class ServiceInfo extends Component {
   constructor(props) {
     super(props);
@@ -144,6 +140,18 @@ class ServiceInfo extends Component {
     )
 
   }
+  _renderTitleIndicator() {
+    return  <PagerTitleIndicator
+                titles={["Dịch vụ","Về chúng tôi","Đánh giá"]}
+                style={styles.indicatorContainer}
+                trackScroll={true}
+                itemTextStyle={styles.indicatorText}
+                itemStyle={{width:windowWidth/3}}
+                selectedItemStyle={{width:windowWidth/3,backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}
+                selectedItemTextStyle={styles.indicatorSelectedText}
+                selectedBorderStyle={styles.selectedBorderStyle}
+            />;
+  }
 
   render() {
     // const { state, actions } = this.props;
@@ -186,7 +194,7 @@ class ServiceInfo extends Component {
           //Body
         }
         <Content>
-          <View style={{ height: 180 }} >
+          <View style={{ height: 190 }} >
             <Swiper style={styles.wrapper}
                     activeDotColor={colors.colorBlueAccentOnLeftTopLogo}
                     showsButtons={false}>
@@ -212,32 +220,29 @@ class ServiceInfo extends Component {
                   </View>
               </Swiper>
            </View>
-           <Tabs
-            style={{flex:1}}
-            prerenderingSiblingsNumber={1}>
-                <Tab heading="Dịch vụ"
-                     tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
-                     textStyle={{color :colors.white}}
-                     activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}>
-                    <Content style={{flex:1}}>
-                    <Text style={styles.bangGiaDichVuCss}>
-                          Bảng giá dịch vụ
-                    </Text>
-                    <SectionList
-                      {...this.props}
-                      sections= {this.state.listData}
-                      keyExtractor={(item,index) => item + index}
-                      renderItem= {this._renderItem}
-                      renderSectionHeader={this._renderSectionHeader}
-                      />
+
+          {/* <ViewPagerAndroidContainer style={{flex: 1, flexDirection: 'column-reverse'}}> */}
+
+           {/* <IndicatorViewPager
+                    style={{flex: 1, flexDirection: 'column-reverse'}}
+                    indicator={this._renderTitleIndicator()}>
+                <View  style={{flex:1}}>
+                  <Content style={{flex:1}}>
+                      <Text style={styles.bangGiaDichVuCss}>
+                            Bảng giá dịch vụ
+                      </Text>
+                      <SectionList
+                        {...this.props}
+                        sections= {this.state.listData}
+                        keyExtractor={(item,index) => item + index}
+                        renderItem= {this._renderItem}
+                        renderSectionHeader={this._renderSectionHeader}
+                        />
                     </Content>
-                </Tab>
-                <Tab heading="Về chúng tôi"
-                     tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
-                     textStyle={{color :colors.white}}
-                     activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}
-                     >
-                     <Content>
+                </View>
+
+                <View  style={{flex:1}}>
+                <Content>
                     <MapView
                         style={{height:200}}
                         initialRegion={{
@@ -249,7 +254,64 @@ class ServiceInfo extends Component {
                     <Card
                         style={{height:170}}>
                     </Card>
-                    </Content>
+                </Content>
+                </View>
+                <View  style={{flex:1}}>
+                  <Text>Danh gia </Text>
+
+                </View>
+
+          </IndicatorViewPager> */}
+
+          {/* </ViewPagerAndroidContainer> */}
+           <Tabs
+            style={{flex:1}}
+            prerenderingSiblingsNumber={1}>
+                <Tab heading="Dịch vụ"
+                     tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
+                     textStyle={{color :colors.white}}
+                    style={{flex:1}}
+                     activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}>
+                    {/* <Content style={{flex:1}}> */}
+                    <Text style={styles.bangGiaDichVuCss}>
+                          Bảng giá dịch vụ
+                    </Text>
+                    <SectionList
+                      {...this.props}
+                      sections= {this.state.listData}
+                      keyExtractor={(item,index) => item + index}
+                      renderItem= {this._renderItem}
+                      renderSectionHeader={this._renderSectionHeader}
+                      />
+                    {/* </Content> */}
+                </Tab>
+                <Tab heading="Về chúng tôi"
+                     tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
+                     textStyle={{color :colors.white}}
+                     activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}
+                     >
+                     {/* <Content style={{height:300}}> */}
+                    <MapView
+                        style={{height:200}}
+                        initialRegion={{
+                          latitude: 10.852014,
+                          longitude: 106.629380,
+                          latitudeDelta: 0.1,
+                          longitudeDelta: 0.1
+                        }}>
+                        <Marker
+                        coordinate={ { latitude:10.853297 , longitude: 106.629545 } }>
+
+                        </Marker>
+                    </MapView>
+                    <Card
+                        style={{height:170}}>
+                        <Text>Nhóm đồ án LDDS {"\n"} Công viên phần mềm Quang Trung quận 12 </Text>
+
+
+                    </Card>
+
+                    {/* </Content> */}
                 </Tab>
                 <Tab heading="Đánh giá"
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
@@ -310,7 +372,26 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 30,
     fontWeight: 'bold',
-  }
+  },
+  indicator: {
+    backgroundColor: '#ffeb3b',
+  },
+  indicatorContainer: {
+    backgroundColor: colors.colorBlueOnLeftTopLogo,
+    height: 48
+  },
+  indicatorText: {
+      fontSize: 14,
+      color: 0xFFFFFF99
+  },
+  indicatorSelectedText: {
+      fontSize: 14,
+      color: 0xFFFFFFFF
+  },
+  selectedBorderStyle: {
+    height: 3,
+    backgroundColor: colors.white,
+  },
 })
 
 function mapStateToProps(state) {

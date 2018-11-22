@@ -108,7 +108,7 @@ class LoginPage extends Component {
                           />
                         </Item>
                         <Item style={styles.inputItem} floatingLabel>
-                          <Label>Password</Label>
+                          <Label>Mật khẩu</Label>
                           <Input secureTextEntry={true}
                           onChangeText={(text) => this.setState({ passwordInput: text })}
                           // keyboardType={this.props.keyboardType ? this.props.keyboardType : 'default' }

@@ -24,18 +24,37 @@ function* loginFacebookApi(fbToken){
   return accountInfo;
 }
 
+function* updateFcmTokenToApi(token,accountId,fcmToken){
+    let formData = new FormData();
+    formData.append('fcm_token', fcmToken);
+
+    const responseUpdate = yield axios({
+      method: 'PUT',
+      url: baseUrl + `/account/${accountId}/token/refresh`,
+      headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization" : token,
+      },
+      data: formData,
+    });
+
+    const accountInfo = yield responseUpdate.status === 200 ? responseUpdate : null;
+
+    return accountInfo;
+  }
+
 function* loginFromApi(emailFromAction,passwordFromAction){
-    console.log("call in api");
+    let formData = new FormData();
+
+    formData.append('email', emailFromAction);
+    formData.append('password', passwordFromAction);
     const response = yield axios({
       method: 'post',
       url: baseUrl + '/account/login',
       header: {
           "Content-Type": "application/x-www-form-urlencoded",
       },
-      data: {
-        'email': emailFromAction,
-        'password': passwordFromAction,
-      }
+      data: formData,
     });
 
     const accountInfo = yield response.status === 200 ? JSON.parse(response._bodyInit): []
@@ -50,8 +69,8 @@ function* getServicesFromApi(){
     return services;
 }
 
-function* getPlacedOrdersFromApi(userId,token){
-  const response = yield axios.get(baseUrl + `/user/${userId}/placedorders`,{
+function* getPlacedOrdersFromApi(userId,token,page){
+  const response = yield axios.get(baseUrl + `/user/${userId}/placedorders?limit=10,page=${page}`,{
       headers: {
           "Authorization": token
       }
@@ -59,6 +78,7 @@ function* getPlacedOrdersFromApi(userId,token){
   // axios(baseUrl + `/user/${userId}/placedorders`);
 
   const placedOrders = yield response.status === 200 ? response.data.records : [];
+
   return placedOrders;
 }
 
@@ -101,4 +121,5 @@ export const Api = {
   getPlacedOrdersFromApi,
   getNotificationsFromApi,
   createNewOrder,
+  updateFcmTokenToApi,
 };

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import {View,PermissionsAndroid,FlatList} from 'react-native';
+import {View,PermissionsAndroid,FlatList,RefreshControl} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
 import colors from '../config/colors';
-import { Container, Header, Left, Body, Right, Title,Content,Fab, Button,Card,CardItem,Text,Icon, Footer } from 'native-base';
+import { Container, Header, Left, Body, Right, Title,Content,Fab, Button,Card,CardItem,Text,Icon, Footer, } from 'native-base';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5Pro from 'react-native-vector-icons/FontAwesome5Pro';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -99,11 +99,11 @@ const getStepIndicatorIconConfig = ({ position, stepStatus }) => {
 
 
 function defineStepIndicatorByStatusId (statusId){
-    if(statusId === 1 || statusId === 2){
+    if(statusId === 1 || statusId === 2 || statusId === 3){
           return 0;
-    }else if(statusId === 3 || statusId === 4){
+    }else if(statusId === 4 || statusId === 5){
           return 1;
-    }else if(statusId === 5 || statusId === 6 || statusId ===7){
+    }else if(statusId === 6 || statusId === 7){
           return 2;
     }else if(statusId === 8){
           return 3;
@@ -119,64 +119,15 @@ class OrderInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      page: 1,
       active: 'true',
-      data : [
-        {
-          "store_id": 0,
-          "time_placed": "2018-10-16T00:00:00+07:00",
-          "detail": "",
-          "current_status_id": 1,
-          "order_status_list": [
-              {
-                  "status_id": 1,
-                  "user_id": 15,
-                  "status_changed_time": "0001-01-01T00:00:00Z",
-                  "description": "User xx vừa mới tạo order"
-              }
-          ],
-          "user_id": 15,
-          "capacity": 0,
-          "estimated_capacity": 5,
-          "delivery_address": "",
-          "delivery_latitude": 0,
-          "delivery_longitude": 0,
-          "total": 30000,
-          "priority": 0,
-          "order_code": "ABC123",
-          "review_id": 0
-        },
-        {
-          "store_id": 0,
-          "time_placed": "2018-10-16T00:00:00+07:00",
-          "detail": "",
-          "current_status_id": 1,
-          "order_status_list": [
-              {
-                  "status_id": 5,
-                  "user_id": 15,
-                  "status_changed_time": "0001-01-01T00:00:00Z",
-                  "description": "User xx vừa mới tạo order"
-              }
-          ],
-          "user_id": 15,
-          "capacity": 0,
-          "estimated_capacity": 5,
-          "delivery_address": "",
-          "delivery_latitude": 0,
-          "delivery_longitude": 0,
-          "total": 30000,
-          "priority": 0,
-          "order_code": "ABC123",
-          "review_id": 0
-        }
-      ]
     };
   }
 
   componentDidMount(){
         let tokenFromState = this.props.login.token;
         let userIdFromState = this.props.login.user.ID;
-        this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState});
+        this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState, page: this.state.page});
   }
   _renderStepIndicator = params => (
 
@@ -197,7 +148,7 @@ class OrderInfo extends Component {
                           alignContent:'flex-start',
                           marginLeft: 20,
                           marginRight: 20}}>
-              <Left style={{flexDirection: 'row', textAlign: 'left', textAlignVertical: 'center',flex:2}}>
+              <Left style={{flexDirection: 'row', textAlign: 'left', textAlignVertical: 'center',flex:3}}>
                   <Text style={{color: colors.gray, fontWeight: 'bold',fontSize:18}}>Mã hoá đơn</Text>
                   <Text> - </Text>
                   <Text style={{color: colors.gray}}>#{item.order_code}</Text>
@@ -232,7 +183,10 @@ class OrderInfo extends Component {
                                     borderRadius: 4,
                                     backgroundColor: colors.white}}
                             onPress={()=>{
-                                this.props.navigation.navigate('OrderDetail');
+                                this.props.navigation.navigate('OrderDetail',{
+                                  orderId: item.ID,
+                                  orderParam: item,
+                                });
                             }}>
                       <Text style={{color: colors.colorBlueOnLeftTopLogo}}>Chi tiết</Text>
                     </Button>
@@ -241,6 +195,27 @@ class OrderInfo extends Component {
       </Card>
     )
 
+  }
+
+  onScrollHandler(){
+    // if (!this.onEndReachedCalledDuringMomentum) {
+
+    //   this.onEndReachedCalledDuringMomentum = true;
+    // }
+    this.setState({
+      page: this.state.page + 1
+    }, () => {
+        let tokenFromState = this.props.login.token;
+        let userIdFromState = this.props.login.user.ID;
+        this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState, page: this.state.page});
+    });
+
+  }
+
+  onRefresh() {
+      let tokenFromState = this.props.login.token;
+      let userIdFromState = this.props.login.user.ID;
+      this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState, page: 0});
   }
 
   render() {
@@ -264,16 +239,30 @@ class OrderInfo extends Component {
       {
         //Body
       }
-      <Content style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}
+                // contentContainerStyle={{flex:1}}
+                //     refreshControl={
+                //         <RefreshControl refreshing={this.props.placedorders.loading}
+                //             onRefresh={() => this.onRefresh()}
+                //             />
+                    // }>
+                    >
 
         <FlatList
-          style={{ flex: 1 }}
+          style={{ flex: 1}}
           data={this.props.placedorders.data}
+          onRefresh={() => this.onRefresh()}
+          refreshing={this.props.placedorders.loading}
           keyExtractor={(item, index) => index.toString()}
           renderItem={this._renderItem}
+          onEndReached={(distance) => {
+            if(this.props.placedorders.data.length % 10 === 0) this.onScrollHandler()
+          }}
+          onEndReachedThreshold={0.5}
+          // onMomentumScrollBegin={() => { this.onEndReachedCalledDuringMomentum = false; }}
         />
 
-      </Content>
+      </View>
       <View>
             <Fab
                   active={this.state.active}
@@ -286,7 +275,6 @@ class OrderInfo extends Component {
                         const granted = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION );
 
                         if (granted) {
-                          console.log(this.props.login);
                           if(this.props.login.token === ''){
                             this.props.navigation.navigate('LoginView',{
                               from: 'orderInfo',

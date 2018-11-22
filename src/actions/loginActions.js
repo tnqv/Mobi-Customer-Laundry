@@ -63,3 +63,25 @@ export function loadUserFromAsyncStorageRequestSucceed(payload) {
     payload: payload
   }
 }
+
+
+export function updateFcmTokenRequest(payload) {
+  return {
+    type: types.API_FCM_UPDATE_REQUEST,
+    payload: payload
+  }
+}
+
+export function updateFcmTokenRequestSucceeded(payload) {
+  return {
+    type: types.API_FCM_UPDATE_SUCCEEDED,
+    payload: payload
+  }
+}
+
+export function updateFcmTokenRequestFailed(payload) {
+  return {
+    type: types.API_FCM_UPDATE_FAILED,
+    payload: payload
+  }
+}
