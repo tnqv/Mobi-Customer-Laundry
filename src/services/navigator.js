@@ -7,6 +7,12 @@ function setTopLevelNavigator(navigatorRef) {
   _navigator = navigatorRef;
 }
 
+function back(){
+  _navigator.dispatch(
+    NavigationActions.back(),
+  );
+}
+
 function navigate(routeName, params) {
   _navigator.dispatch(
     NavigationActions.navigate({
@@ -63,4 +69,5 @@ export default {
   setTopLevelNavigator,
   reset,
   goBackToMainTabBar,
+  back,
 };

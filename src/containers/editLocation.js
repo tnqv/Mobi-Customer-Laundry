@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar, BackHandler,NativeModules,PermissionsAndroid,TouchableHighlight} from 'react-native';
+import {View,Text,Image, StyleSheet, Platform,Dimensions, TouchableOpacity,StatusBar, BackHandler,NativeModules,PermissionsAndroid} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -24,7 +24,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 const SweetAlertNative = NativeModules.RNSweetAlert;
 
-class PlaceOrder extends Component {
+class EditLocation extends Component {
 
   constructor(props) {
     super(props);
@@ -66,7 +66,7 @@ class PlaceOrder extends Component {
   _onMapReady = () => this.setState({statusBarHeight: StatusBar.currentHeight})
 
   _handleBackPress = () => {
-        NavigatorService.goBackToMainTabBar('OrderInfo');
+
   }
 
   componentWillMount(){
@@ -244,7 +244,7 @@ class PlaceOrder extends Component {
 
   // }
 
-  _showNormalDialog(placedOrder){
+  _showNormalDialog(shippingLocation){
     SweetAlertNative.showSweetAlert(
       {
           title: 'Xác nhận',
@@ -255,11 +255,11 @@ class PlaceOrder extends Component {
           otherButtonColor: '#dedede',
           type: 'normal',
           cancelText: "Huỷ bỏ",
-          contentText: 'Bạn có xác nhận muốn tạo đơn hàng ?',
+          contentText: 'Bạn có xác nhận muốn câp nhật địa chỉ ?',
           cancellable: true,
         },
         successCallback =>{
-          this.props.onCreatedPressed(this.props.login.token,placedOrder);
+          this.props.onCreatedPressed(this.props.login.token,this.props.login.user.ID,shippingLocation);
 
         },
         errorCallback => {
@@ -327,7 +327,7 @@ class PlaceOrder extends Component {
     return (
       <View  style={{flex:1,backgroundColor: colors.white}}>
        {
-             this.props.placedorders.loading || this.state.loading ?
+             this.props.locationAddress.loading || this.state.loading ?
                   <Spinner
                   style={{
                     width: 100,
@@ -341,7 +341,7 @@ class PlaceOrder extends Component {
                 </Spinner> : null
 
           }
-          {
+          {/* {
 
             this.props.placedorders.createdOrder.data ?
             this.showSuccessDialog(`Bạn đã tạo đơn hàng thành công.\n Mã đơn hàng của bạn là  ${this.props.placedorders.createdOrder.data.order_code}` ) : null
@@ -350,12 +350,12 @@ class PlaceOrder extends Component {
           {
             this.props.placedorders.error ?
             this.showErrorDialog(`${this.props.placedorders.error}`) : null
-          }
+          } */}
           <Header style={{backgroundColor: colors.colorBlueOnLeftTopLogo}}>
               <Left style={{flex: 1}}></Left>
 
               <Body style={{flex:1,alignItems:'center'}}>
-                <Title>Tạo đơn hàng</Title>
+                <Title>Tạo địa chỉ</Title>
               </Body>
 
               <Right style={{flex: 1}}/>
@@ -363,17 +363,29 @@ class PlaceOrder extends Component {
             {
 
             }
-            <View  style={{flex:1,backgroundColor: colors.lightgray}}>
+            <View  style={{flex:1}}>
                 <Content style={{flex:1}}>
-                      {/* <View style={{flex:1,height:230}}>
+                      <View style={{flex:1,height:230}}>
                       <Text>
                            Nhấn vào vị trí địa điểm bạn muốn ship tới
-                      </Text>
+                        </Text>
+                      {/* <TouchableOpacity
+                        hitSlop= {hitSlop}
+                        activeOpacity={0.7}
+                        style={styles.mapButton}
+                        onPress={ () => this._findMe()}>
+                        <Text>
+                           Nhấn vào vị trí địa điểm bạn muốn ship tới
+                        </Text>
+
+                      </TouchableOpacity> */}
 
                       <MapView style={styles.map}
                       showsUserLocation={true}
                       showsMyLocationButton={true}
                       region={this.state.mapRegion}
+                      // showsUserLocation={true}
+                      // followUserLocation={true}
                       onPress={(event) => {
                         let location = {
                           lat: event.nativeEvent.coordinate.latitude,
@@ -385,6 +397,7 @@ class PlaceOrder extends Component {
                         this.getLocationWithGeoLocation(location);
 
                       }}
+                      // onRegionChange={this.onRegionChange.bind(this)}
                       onMapReady={this._onMapReady}
                       initialRegion={{
                         latitude: 10.852014,
@@ -398,93 +411,38 @@ class PlaceOrder extends Component {
                             title={"Địa điểm của bạn"}
                           />}
 
+                           {/* {this.state.markers.map((marker, index) => {
+                                const display = {
+                                    title: marker.title
+                                }
+                                return ( */}
+                                  {/* <Marker tracksViewChanges={false}
+                                          // key={index}
+                                          coordinate={this.state.marker.coordinate}
+                                          title={this.state.marker.id}> */}
+
+                                    {/* <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                                      <Animated.View style={[styles.ring, scaleStyle]} />
+                                      <View style={styles.marker} />
+
+                                    </Animated.View> */}
+                                  {/* </Marker> */}
+                                {/* );
+                              })} */}
+
                           </MapView>
 
-                      </View> */}
-                       <Card>
-                        <CardItem style={{
-                           paddingLeft:20,
-                           paddingRight:0,
-                           paddingTop:20,
-                           paddingBottom:0,
-                        }}>
-                          <Text style={{fontSize: 16,color:colors.black}}>
-                              Thông tin địa chỉ giao hàng :
-                          </Text>
-                        </CardItem>
-                        <CardItem style={{
-                          paddingLeft:0,
-                          paddingRight:20,
-                          paddingTop:0,
-                          paddingBottom:0,
-                        }}>
-                          <Left></Left>
-                          <Right>
-                            <TouchableHighlight
-                            onPress={()=>{
-                                this.props.navigation.navigate("ChooseLocation");
-                            }}>
-                                <Text style={{color:colors.colorBlueOnLeftTopLogo}}>Sửa</Text>
-                            </TouchableHighlight>
+                      </View>
+                      <Form style={{flex:1,marginLeft: 15,marginRight: 15}}>
 
-                          </Right>
-                        </CardItem>
-                        <CardItem style={{
-                           paddingLeft:20,
-                           paddingRight:0,
-                           paddingTop:0,
-                           paddingBottom:20,
-                        }}>
-                          <Left>
-                            <MapView
-                            style={{width:100,height:100}}
-                            initialRegion={{
-                              latitude: 10.852014,
-                              longitude: 106.629380,
-                              latitudeDelta: 0.1,
-                              longitudeDelta: 0.1}}>
-                              {/* <Marker
-                                      coordinate={{latitude: item.latitude, longitude: item.longitude}}
-                                      title={"Địa điểm của bạn"}
-                                    /> */}
-
-                            </MapView>
-                            {this.props.locationAddress.chosenLocation ?
-                            <Body>
-                              <Text style={{color: colors.black}}>{this.props.locationAddress.chosenLocation.receiver_name}</Text>
-                              <Text note>{this.props.locationAddress.chosenLocation.shipping_address}</Text>
-                              <Text note>{this.props.locationAddress.chosenLocation.phone_number}</Text>
-
-                            </Body> :
-                            <Body>
-                              <Text>
-                                    Hiện tại chưa có địa chỉ, bạn vui lòng bấm vào sửa để thêm địa chỉ ship hàng !
-                              </Text>
-                            </Body>
-                            }
-                          </Left>
-                        </CardItem>
-
-                      </Card>
-                      <Card>
-                      <Form style={{flex:1, backgroundColor: colors.white}}>
-
-                        {/* <Item floatingLabel>
+                        <Item floatingLabel>
                           <Icon active name='home' />
                           <Label>Địa chỉ</Label>
                           <Input
                             onChangeText={(text) => this.setState({ deliveryAddress: text })}
                             value={this.state.deliveryAddress} />
-                        </Item> */}
-
-                        <Item floatingLabel>
-                          <Icon active name='speedometer' />
-                          <Label>Số ký của quần áo*</Label>
-                          <Input
-                          onChangeText={(text) => this.setState({ capacity: text })}
-                          value={this.state.capacity} />
                         </Item>
-                        {/* <Item floatingLabel>
+                        <Item floatingLabel>
                           <Icon active name='user' type="FontAwesome"/>
                           <Label>Tên người đặt hàng</Label>
                           <Input
@@ -497,39 +455,19 @@ class PlaceOrder extends Component {
                           <Input
                             onChangeText={(text) => this.setState({ receiverPhone: text })}
                             value={this.state.receiverPhone}/>
-                        </Item> */}
-                        <View style={{marginTop: 30,marginBottom: 30}}>
-                          <Item>
-                            <Icon name='note' type="MaterialIcons" />
-                            <Label>Ghi chú</Label>
-                          </Item>
-                          <Textarea  style={{marginLeft:15}} bordered rowSpan={4}
-                                     onChangeText={(text) => this.setState({ note: text })}
-                                     value={this.state.note}/>
-                        </View>
+                        </Item>
                       </Form>
-                      </Card>
-
-
-
-
-
                   </Content>
+
                   <Button
                       onPress={()=>{
 
-                          let capacityReq = this.state.capacity;
-                          let deliveryAddrReq= this.props.locationAddress.chosenLocation.shipping_address;
-                          let deliveryLatitudeReq = this.props.locationAddress.chosenLocation.latitude;
-                          let deliveryLongitudeReq = this.props.locationAddress.chosenLocation.longitude;
-                          let receiverNameReq = this.props.locationAddress.chosenLocation.receiver_name;
-                          let receiverPhoneReq = this.props.locationAddress.chosenLocation.phone_number;
-                          let noteReq = this.state.note;
 
-                          if(capacityReq === ''){
-                            alert('Xin vui lòng nhập số kg quần áo !');
-                            return;
-                          }
+                          let deliveryAddrReq= this.state.deliveryAddress;
+                          let deliveryLatitudeReq = this.state.marker.coordinate.latitude;
+                          let deliveryLongitudeReq = this.state.marker.coordinate.longitude;
+                          let receiverNameReq = this.state.receiverName;
+                          let receiverPhoneReq = this.state.receiverPhone;
 
                           if(deliveryAddrReq === ''){
                             alert('Xin vui lòng nhập địa chỉ giao/nhận đồ');
@@ -546,25 +484,22 @@ class PlaceOrder extends Component {
                             return;
                           }
 
-                          let placedOrder = {
-                            'capacity' : parseInt(capacityReq),
-                            'delivery_address' : deliveryAddrReq,
-                            'delivery_latitude' : deliveryLatitudeReq,
-                            'delivery_longitude': deliveryLongitudeReq,
+                          let shippingLocation = {
+                            'shipping_address' : deliveryAddrReq,
+                            'latitude' : deliveryLatitudeReq,
+                            'longitude': deliveryLongitudeReq,
                             'receiver_name': receiverNameReq,
-                            'receiver_phone': receiverPhoneReq,
-                            'note': noteReq,
-                            'user_id': parseInt(this.props.login.user.ID),
+                            'phone_number': receiverPhoneReq,
+                            // 'user_id': parseInt(this.props.login.user.ID),
                           }
                           console.log("test");
 
-                          this._showNormalDialog(placedOrder);
+                          this._showNormalDialog(shippingLocation);
                       }}
-                      style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo}}
+                      style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo,position: 'absolute',bottom: 0,left: 0,}}
                       block>
-                        <Text style={{color:colors.white,}}>Tiến hành tạo đơn hàng</Text>
-                    </Button>
-
+                        <Text style={{color:colors.white,}}>Cập nhật địa chỉ</Text>
+                      </Button>
             </View>
       </View>
     );
@@ -604,14 +539,14 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     // actions: bindActionCreators(appActions.actions, dispatch)
-    onLocationChanged: (location) => {
-      dispatch(appActions.actions.locationChanged(location));
-    },
-    onCreatedPressed: (token,placedOrderModel)=>{
-      dispatch(appActions.actions.createNewPlacedOrderRequest({token: token,params: placedOrderModel}));
+    // onLocationChanged: (location) => {
+    //   dispatch(appActions.actions.locationChanged(location));
+    // },
+    onCreatedPressed: (token,userId,shippingLocationModel)=>{
+      dispatch(appActions.actions.createUserLocationRequest({token: token, userId: userId,shippingLocation: shippingLocationModel}));
     }
   };
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(PlaceOrder);
+export default connect(mapStateToProps, mapDispatchToProps)(EditLocation);

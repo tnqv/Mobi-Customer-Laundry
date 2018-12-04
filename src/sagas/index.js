@@ -7,7 +7,8 @@ import { watchLocationChanged } from './location';
 import { watchServiceReq } from './service';
 import { watchPlacedOrderReq,watchCreatePlacedOrderReq } from './placedorder';
 import { watchNotificationsReq } from './notifications';
-import { watchUpdateFcmToken } from './updateFcm'
+import { watchUpdateFcmToken } from './updateFcm';
+import { watchCreateShippingLocation,watchUpdateShippingLocation } from './shippingLocation';
 
 
 export default function* rootSaga() {
@@ -23,5 +24,7 @@ export default function* rootSaga() {
     watchNotificationsReq,
     watchCreatePlacedOrderReq,
     watchUpdateFcmToken,
+    watchCreateShippingLocation,
+    watchUpdateShippingLocation,
   ].map(fork))
 }

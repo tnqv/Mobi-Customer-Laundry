@@ -3,6 +3,7 @@ import { View, Image,ImageBackground } from 'react-native';
 import { connect } from 'react-redux';
 import { Container, Header, Left, Body, Right,Thumbnail, Title,Content, Button,Card,CardItem,Text,Icon, Footer, ListItem } from 'native-base';
 import * as appActions from '../actions';
+import NavigatorService from '../services/navigator';
 import colors from '../config/colors';
 
 
@@ -157,6 +158,29 @@ class Settings extends Component {
                 </Body>
                 <Right>
                   <Text>Xem trợ giúp</Text>
+                  <Icon active name="arrow-forward" />
+                </Right>
+          </ListItem>
+          <ListItem icon
+            onPress={()=> {
+              if(this.props.login.token === ''){
+                  this.props.navigation.navigate('LoginView');
+              }else{
+                  this.props.navigation.navigate('LocationManage');
+              }
+
+
+            }}>
+                <Left>
+                  <Button style={{ backgroundColor: colors.newPrimaryBlue }}>
+                    <Icon active type="MaterialIcons" name="my-location" />
+                  </Button>
+                </Left>
+                <Body>
+                  <Text>Địa chỉ</Text>
+                </Body>
+                <Right>
+                  <Text>Xem các địa chỉ của tôi</Text>
                   <Icon active name="arrow-forward" />
                 </Right>
           </ListItem>

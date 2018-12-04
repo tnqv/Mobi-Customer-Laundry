@@ -10,6 +10,9 @@ import Settings from '../containers/settings';
 import LoginPage from '../containers/loginPage';
 import PlaceOrder from '../containers/placeOrder';
 import SplashScreen from '../containers/splashScreen';
+import LocationManage from '../containers/locationManage';
+import EditLocation from '../containers/editLocation';
+import ChooseLocation from '../containers/chooseLocation';
 import colors from '../config/colors'
 
 
@@ -22,6 +25,54 @@ const orderIconActive = (<Ionicons name="md-reorder" size={24}  color={colors.co
 const notificationIconActive = (<Ionicons name="md-notifications" size={24} color={colors.colorBlueOnLeftTopLogo}  />)
 const personIconActive = (<Ionicons name="md-person" size={24} color={colors.colorBlueOnLeftTopLogo} />)
 
+export const SettingsStack = createStackNavigator({
+    MainSettings: {
+      screen: Settings,
+      navigationOptions: {
+        tabBarVisible: false,
+        header: null,
+      }
+    },
+    LocationManage: {
+      screen: LocationManage,
+      navigationOptions: {
+        tabBarVisible: false,
+        header: null,
+      }
+    },
+    EditLocation: {
+      screen: EditLocation,
+      navigationOptions: {
+        tabBarVisible: false,
+        header: null,
+      }
+    }
+},
+{
+  initialRouteName: 'MainSettings',
+  mode: 'modal',
+  headerMode: 'none',
+
+});
+
+SettingsStack.navigationOptions = ({navigation}) => {
+  let tabBarVisible = true;
+  let routeName = navigation.state.routes[navigation.state.index].routeName;
+
+  if(routeName === 'LocationManage') {
+
+    tabBarVisible = false;
+    header = null;
+
+  }else if(routeName === 'EditLocation'){
+
+    tabBarVisible = false;
+
+  }
+  return {
+    tabBarVisible,
+  }
+}
 export const OrderStack = createStackNavigator(
   {
       OrderInfo: {
@@ -49,6 +100,12 @@ export const OrderStack = createStackNavigator(
             tabBarVisible: false,
           }
       },
+      ChooseLocation : {
+         screen: ChooseLocation,
+         navigationOptions: {
+          tabBarVisible: false,
+         }
+      }
   },
   {
       initialRouteName: 'OrderInfo',
@@ -75,6 +132,8 @@ OrderStack.navigationOptions = ({navigation}) => {
 
      tabBarVisible = false;
 
+   }else if (routeName === 'ChooseLocation'){
+    tabBarVisible = false;
    }
    return {
      tabBarVisible,
@@ -83,15 +142,6 @@ OrderStack.navigationOptions = ({navigation}) => {
 
 export const MainTabBar = createBottomTabNavigator(
   {
-    ServicePrice : {
-      screen: ServiceInfo,
-      navigationOptions: {
-         title: "Dịch vụ",
-         tabBarIcon: ({ tintColor, focused }) => (
-           !focused ? serviceIcon : serviceIconActive
-        ),
-      }
-    },
     OrderInfo : {
       screen: OrderStack,
       navigationOptions: {
@@ -100,6 +150,15 @@ export const MainTabBar = createBottomTabNavigator(
           !focused ? orderIcon : orderIconActive
        ),
      }
+    },
+    ServicePrice : {
+      screen: ServiceInfo,
+      navigationOptions: {
+         title: "Dịch vụ",
+         tabBarIcon: ({ tintColor, focused }) => (
+           !focused ? serviceIcon : serviceIconActive
+        ),
+      }
     },
     NotificationFeeds : {
       screen: NotificationFeeds,
@@ -111,7 +170,7 @@ export const MainTabBar = createBottomTabNavigator(
       }
     },
     Me : {
-      screen: Settings,
+      screen: SettingsStack,
       navigationOptions: {
         title: "Tôi",
         tabBarIcon: ({ tintColor, focused }) => (

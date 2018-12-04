@@ -114,6 +114,42 @@ function* createNewOrder(token,paramsReq){
     return createdOrderInfo;
 }
 
+function* createNewShippingLocation(token,userId,shippingLocation){
+    let formData = new FormData();
+    for ( let key in shippingLocation ) {
+        formData.append(key, shippingLocation[key]);
+    }
+    const response = yield axios({
+        method: 'POST',
+        url: baseUrl + `/user/${userId}/location`,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization" : token,
+        },
+        data: formData,
+    });
+    const createdShippingLocation = yield response.status === 200 ? response.data : null
+    return createdShippingLocation
+}
+
+function* updateShippingLocation(token,userId,shippingLocation){
+    let formData = new FormData();
+    for ( let key in shippingLocation ) {
+        formData.append(key, shippingLocation[key]);
+    }
+    const response = yield axios({
+        method: 'put',
+        url: baseUrl + `/user/${userId}/location/${shippingLocation.id}`,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization" : token,
+        },
+        data: formData,
+    });
+    const updatedShippingLocation = yield response.status === 200 ? response : null
+    return updatedShippingLocation
+}
+
 export const Api = {
   loginFromApi,
   loginFacebookApi,
@@ -122,4 +158,6 @@ export const Api = {
   getNotificationsFromApi,
   createNewOrder,
   updateFcmTokenToApi,
+  createNewShippingLocation,
+  updateShippingLocation,
 };

@@ -38,14 +38,12 @@ export default function (state = initialState, action) {
         loading: true,
       }
     case API_LOGIN_REQUEST_SUCCEEDED:
-      console.log("yield success",state);
-      console.log(action.results.info);
       return {
         ...state,
         loading: false,
         results: action.results,
-        token: action.results.info.account.token,
-        user: action.results.info.user,
+        token: action.results.info.data.account.token,
+        user: action.results.info.data.user,
       };
     case API_LOGIN_REQUEST_FAILED:
       return {

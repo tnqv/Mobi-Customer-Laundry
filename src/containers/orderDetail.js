@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
-import {View, FlatList} from 'react-native';
+import {View, FlatList, TouchableOpacity} from 'react-native';
 import { connect } from 'react-redux';
 import { Container, Header, Left, Body, Right, Title,Content, Button,Card,CardItem,Text,Icon, Footer, ListItem,Grid,Row,Col } from 'native-base';
 import * as appActions from '../actions';
 import colors from '../config/colors';
 import Timeline from 'react-native-timeline-listview';
+import Dialog, { SlideAnimation, DialogContent,DialogTitle,DialogButton } from 'react-native-popup-dialog';
+import QRCode from 'react-native-qrcode';
+
 
 class OrderDetail extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      visible: false,
       active: 'true',
       order : this.props.navigation.state.params.orderParam,
     };
@@ -35,6 +39,38 @@ class OrderDetail extends Component {
     // const { state, actions } = this.props;
     return (
       <Container style={{backgroundColor: colors.lightgray}}>
+        <View>
+            <Dialog
+              visible={this.state.visible}
+              onTouchOutside={() => {
+                this.setState({ visible: false });
+              }}
+              dialogTitle={<DialogTitle title="Mã xác nhận" />}
+              dialogAnimation={new SlideAnimation({
+                slideFrom: 'bottom',
+              })}
+              actions={[
+                <DialogButton
+                  text="Đóng"
+                  key="close"
+                  onPress={() => {
+                    this.setState({
+                      visible: false
+                    })
+                  }}
+                />
+              ]}
+            >
+              <DialogContent>
+                  <QRCode
+                      // value={this.state.order.verify_code}
+                      value={"123456"}
+                      size={200}
+                      bgColor='black'
+                      fgColor='white'/>
+              </DialogContent>
+            </Dialog>
+          </View>
           {
             //Header
           }
@@ -46,6 +82,13 @@ class OrderDetail extends Component {
             </Body>
 
             <Right style={{flex: 1}}>
+              <TouchableOpacity onPress={()=> {
+                this.setState({
+                  visible: true,
+                })
+              }}>
+                <Icon style={{color: colors.white}} type="FontAwesome" name="qrcode"/>
+              </TouchableOpacity>
 
             </Right>
           </Header>
@@ -242,6 +285,7 @@ class OrderDetail extends Component {
                   timeStyle={{textAlign: 'center', backgroundColor:'#ff9797', color:'white', padding:5, borderRadius:13}}
                   circleColor={colors.colorBlueOnLeftTopLogo}
                   lineColor={colors.colorBlueOnLeftTopLogo}
+                  dotColor={colors.white}
                   data={this.state.order.order_status_list.map(status => {
                     const orderDate = new Date(status.status_changed_time);
                     return Object.assign({},status,{time : `${orderDate.getDate()}-${orderDate.getMonth() +1 }-${orderDate.getFullYear()} ${orderDate.getHours()}:${orderDate.getMinutes()}:${orderDate.getSeconds()}`} )

@@ -133,7 +133,7 @@ class LoginPage extends Component {
                                   }
 
                                   }>
-                              <Text style={{color:colors.white}}>Sign In</Text>
+                              <Text style={{color:colors.white}}>Đăng nhập</Text>
                           </Button>
 
                           <Button style={{alignSelf: 'stretch', backgroundColor: colors.fbColor, marginTop:15}}
@@ -143,7 +143,7 @@ class LoginPage extends Component {
                             <Image
                               style={{ width: 20, height: 20,}}
                               source={require('../assets/facebook.png')}></Image>
-                            <Text style={{color:colors.white,marginLeft:10}}>Login with FACEBOOK</Text>
+                            <Text style={{color:colors.white,marginLeft:10}}>Đăng nhập với FACEBOOK</Text>
                           </Button>
                       </Body>
 

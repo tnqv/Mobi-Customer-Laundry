@@ -10,8 +10,12 @@ import { Container, Header, Left, Body, Right, Thumbnail, Card, CardItem, Title,
 import MapView,{Marker} from 'react-native-maps';
 
 
+
 const windowWidth = Dimensions.get('window').width;
 const platform = Platform.OS;
+
+
+
 class ServiceInfo extends Component {
   constructor(props) {
     super(props);
@@ -82,6 +86,8 @@ class ServiceInfo extends Component {
       listData: {}
     }
   }
+
+
 
   componentDidMount(){
       // this.state.data = this.props.service.data
@@ -264,6 +270,15 @@ class ServiceInfo extends Component {
           </IndicatorViewPager> */}
 
           {/* </ViewPagerAndroidContainer> */}
+          {/* <TabView
+              navigationState={this.state}
+              renderScene={SceneMap({
+                first: FirstRoute,
+                second: SecondRoute,
+              })}
+              onIndexChange={index => this.setState({ index })}
+              initialLayout={{ width: Dimensions.get('window').width }}
+            /> */}
            <Tabs
             style={{flex:1}}
             prerenderingSiblingsNumber={1}>
@@ -272,7 +287,7 @@ class ServiceInfo extends Component {
                      textStyle={{color :colors.white}}
                     style={{flex:1}}
                      activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}>
-                    {/* <Content style={{flex:1}}> */}
+
                     <Text style={styles.bangGiaDichVuCss}>
                           Bảng giá dịch vụ
                     </Text>
@@ -283,14 +298,14 @@ class ServiceInfo extends Component {
                       renderItem= {this._renderItem}
                       renderSectionHeader={this._renderSectionHeader}
                       />
-                    {/* </Content> */}
+
                 </Tab>
                 <Tab heading="Về chúng tôi"
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
                      textStyle={{color :colors.white}}
                      activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}
                      >
-                     {/* <Content style={{height:300}}> */}
+
                     <MapView
                         style={{height:200}}
                         initialRegion={{
@@ -311,7 +326,7 @@ class ServiceInfo extends Component {
 
                     </Card>
 
-                    {/* </Content> */}
+
                 </Tab>
                 <Tab heading="Đánh giá"
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}

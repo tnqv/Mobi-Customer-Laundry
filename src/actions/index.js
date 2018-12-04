@@ -5,6 +5,7 @@ import * as locationActions from './locationActions';
 import * as serviceActions from './serviceActions';
 import * as placedorderActions from './placedorderActions';
 import * as notifications from './notifications';
+import * as userLocations from './userLocation';
 
 const actions = {
   ...apiTesterActions,
@@ -14,6 +15,7 @@ const actions = {
   ...serviceActions,
   ...placedorderActions,
   ...notifications,
+  ...userLocations,
 };
 
 export { actions };
