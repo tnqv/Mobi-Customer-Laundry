@@ -27,7 +27,8 @@ const colors = {
   colorUnreadNotification: '#edf2fa',
   orange: "#FF9501",
   lightGreen: "#90EE90",
-
+  redDanger: "#DB3545",
+  yellowWarning: "#FFC107",
 
 };
 export default colors;

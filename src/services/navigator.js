@@ -40,17 +40,20 @@ function goBackToMainTabBar(params){
   .catch(e => console.log(e));
 }
 
-function reset(routeName,tabRoute,params) {
+function reset(route) {
     _navigator.dispatch(
         StackActions.reset({
-          // key: 'MainTabBar',
+          key: null,
           index: 0,
           actions: [
-                  NavigationActions.navigate({
-                      type: NavigationActions.NAVIGATE,
-                      routeName,
-                      params,
-                  }),
+                {
+                  type: NavigationActions.NAVIGATE,
+                  routeName: route,
+                },
+                  // NavigationActions.navigate({
+                  //     type: NavigationActions.NAVIGATE,
+                  //     routeName: routeName,
+                  // }),
                 //   NavigationActions.navigate({
                 //     type: NavigationActions.NAVIGATE,
                 //     tabRoute,

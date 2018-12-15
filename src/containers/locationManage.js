@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View, Image, FlatList,SectionList,StyleSheet,TouchableOpacity} from 'react-native';
+import {View, Image, FlatList,SectionList,StyleSheet,TouchableOpacity,NativeModules} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -7,14 +7,86 @@ import colors from '../config/colors';
 
 import Swiper from 'react-native-swiper';
 
-import { Container, Header, Left, Body, Right, Thumbnail, Card, CardItem, Title,Content, List, ListItem,Icon,Text,Button } from 'native-base';
+import { Container, Header, Left, Body, Right, Thumbnail, Card, CardItem, Title,Content, List, ListItem,Icon,Text,Button,SwipeRow } from 'native-base';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5'
 import MapView,{ AnimatedRegion,Marker } from 'react-native-maps';
+
+const SweetAlertNative = NativeModules.RNSweetAlert;
 
 class LocationManage extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+       updateVisible: false,
+    }
+  }
+
+  _showNormalDialog(shippingLocation){
+    SweetAlertNative.showSweetAlert(
+      {
+          title: 'Xác nhận',
+          subTitle: '',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          otherButtonTitle: 'Huỷ bỏ',
+          otherButtonColor: '#dedede',
+          type: 'normal',
+          cancelText: "Huỷ bỏ",
+          contentText: `Bạn có muốn xoá địa chỉ ${shippingLocation.shipping_address} ?`,
+          cancellable: true,
+        },
+        successCallback =>{
+            this.props.onDeletePress(this.props.login.token,this.props.login.user.ID,shippingLocation.ID);
+        },
+        errorCallback => {
+
+        }
+    )
+
+  }
+
+  showSuccessDialog(message){
+    SweetAlertNative.showSweetAlert(
+      {
+          title: 'Xác nhận',
+          subTitle: '',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          type: 'success',
+          cancelText: "",
+          contentText: message,
+          cancellable: false,
+        },
+        successCallback =>{
+            // alert(successCallback);
+
+        },
+        errorCallback => {
+            // alert(errorCallback);
+        }
+    )
+  }
+
+  showErrorDialog(message){
+    SweetAlertNative.showSweetAlert(
+      {
+          title: 'Lỗi xảy ra',
+          subTitle: '',
+          confirmButtonTitle: 'OK',
+          confirmButtonColor: '#000',
+          type: 'error',
+          cancelText: "",
+          contentText: message,
+          cancellable: false,
+        },
+        successCallback =>{
+            // alert(successCallback);
+        },
+        errorCallback => {
+            // alert(errorCallback);
+        }
+    )
   }
 
   async componentDidMount () {
@@ -27,46 +99,63 @@ class LocationManage extends Component {
     //       longitude: item.longitude,
     //     }
     return (
-      <Card>
-          <CardItem>
-            <Left style={{flex:2}}>
-            <View pointerEvents="none">
-              <MapView
-              style={{width:100,height:100}}
+          <Card>
+                    <CardItem>
+                      <Left style={{flex:2}}>
+                      <View pointerEvents="none">
+                        <MapView
+                        style={{width:100,height:100}}
 
-              // initialRegion={{
-              //   latitude: 10.852014,
-              //   longitude: 106.629380,
-              //   latitudeDelta: 0.1,
-              //   longitudeDelta: 0.1
-              //     }}
-              initialRegion={{
-                latitude: item.latitude,
-                longitude: item.longitude,
-                latitudeDelta: 0.1,
-                longitudeDelta: 0.1}}
-              >
-                <Marker
-                        coordinate={{latitude: item.latitude, longitude: item.longitude}}
-                        title={"Địa điểm của bạn"}
-                      />
+                        // initialRegion={{
+                        //   latitude: 10.852014,
+                        //   longitude: 106.629380,
+                        //   latitudeDelta: 0.1,
+                        //   longitudeDelta: 0.1
+                        //     }}
+                        initialRegion={{
+                          latitude: item.latitude,
+                          longitude: item.longitude,
+                          latitudeDelta: 0.1,
+                          longitudeDelta: 0.1}}
+                        >
+                          <Marker
+                                  coordinate={{latitude: item.latitude, longitude: item.longitude}}
+                                  title={"Địa điểm của bạn"}
+                                />
 
-              </MapView>
-              </View>
-              <Body>
-                <Text>{item.receiver_name}</Text>
-                <Text note>{item.phone_number}</Text>
-                <Text note>{item.shipping_address}</Text>
+                        </MapView>
+                        </View>
+                        <Body>
+                          <Text>{item.receiver_name}</Text>
+                          <Text note>{item.phone_number}</Text>
+                          <Text note>{item.shipping_address}</Text>
 
-              </Body>
-            </Left>
-            {/* <Right style={{flex:1}}>
-                <Icon type="FontAwesome" name="check" style={{color:colors.lightGreen}}/>
-            </Right> */}
-          </CardItem>
+                        </Body>
+                      </Left>
+                      <Right style={{flex:1}}>
+                          {/* <Icon type="FontAwesome" name="arrow-left" style={{color:colors.lightgray}}/> */}
+                          {this.state.updateVisible ?
+                          <Body>
 
-        </Card>
+                              <Button success onPress={() => {
+                                this.props.navigation.navigate('EditLocation',{
+                                  updateShippingLocation: item,
+                                });
+                              }}>
+                                <Icon name="edit" type="FontAwesome" style={{fontSize: 19}} />
+                              </Button>
 
+                              <Button danger style={{marginTop: 15}} onPress={() =>{
+                                  this._showNormalDialog(item);
+                                }
+                              }>
+                                <Icon name="trash" type="FontAwesome" style={{fontSize: 24}} />
+                              </Button>
+
+                          </Body>: null }
+                      </Right>
+                    </CardItem>
+                  </Card>
     )
   }
   render() {
@@ -85,15 +174,25 @@ class LocationManage extends Component {
           </Body>
 
           <Right style={{flex: 1}}>
-            {/* <TouchableOpacity onPress={()=> {
+          {this.state.updateVisible ?
+            <TouchableOpacity onPress={()=> {
+                this.setState({
+                  updateVisible: false,
+                })
+              }}>
+
+                <Text style={{color:colors.white}}>Xong</Text>
+            </TouchableOpacity>
+            :
+            <TouchableOpacity onPress={()=> {
               this.setState({
-                visible: true,
+                updateVisible: true,
               })
             }}>
 
                 <Text style={{color:colors.white}}>Sửa</Text>
-            </TouchableOpacity> */}
-
+            </TouchableOpacity>
+          }
           </Right>
         </Header>
         {
@@ -146,6 +245,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     // actions: bindActionCreators(appActions.actions, dispatch),
+    onDeletePress: (token,userId,locationId) => {
+      dispatch(appActions.actions.deleteUserLocationRequest({token: token, userId: userId,shippingLocationId: locationId}));
+    },
   };
 }
 

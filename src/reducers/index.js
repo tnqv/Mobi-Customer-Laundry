@@ -6,6 +6,7 @@ import service from './service';
 import placedorders from './placedorders';
 import notifications from './notifications';
 import locationAddress from './locationAddress';
+import review from './review';
 
 export {
   counter,
@@ -16,4 +17,5 @@ export {
   placedorders,
   notifications,
   locationAddress,
+  review,
 };

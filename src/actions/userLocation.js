@@ -65,6 +65,27 @@ export function updateUserLocationRequestFailed(payload) {
   }
 }
 
+export function deleteUserLocationRequest(payload) {
+  return {
+    type: types.DELETE_USER_LOCATION,
+    payload: payload
+  }
+}
+
+export function deleteUserLocationRequestSucceeded(payload) {
+  return {
+    type: types.DELETE_USER_LOCATION_SUCCEED,
+    payload: payload
+  }
+}
+
+export function deleteUserLocationRequestFailed(payload) {
+  return {
+    type: types.DELETE_USER_LOCATION_FAILED,
+    payload: payload
+  }
+}
+
 export function changeUserLocation(payload){
   return {
     type: types.CHANGE_USER_LOCATION,

@@ -24,6 +24,7 @@
     "react-native-popup-dialog": "^0.16.4",
     "react-native-push-notification": "^3.1.1",
     "react-native-qrcode": "^0.2.7",
+    "react-native-ratings": "^6.1.0",
     "react-native-step-indicator": "0.0.9",
     "react-native-sweet-alert": "^2.0.1",
     "react-native-swiper": "^1.5.13",

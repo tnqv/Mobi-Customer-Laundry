@@ -29,7 +29,7 @@ class EditLocation extends Component {
   constructor(props) {
     super(props);
     // this.state = { usernameInput: '', passwordInput: '' };
-
+    let shippingLocation = this.props.navigation.state.params.updateShippingLocation;
     // this.onCreatedPressed = this.onCreatedPressed.bind(this);
     this.state = {
       loading: false,
@@ -45,11 +45,11 @@ class EditLocation extends Component {
       lastLat: null,
       lastLong: null,
       capacity: '',
-      deliveryAddress : '',
-      deliveryLongitude: '',
-      deliveryLatitude: '',
-      receiverName: '',
-      receiverPhone: '',
+      deliveryAddress : shippingLocation ? shippingLocation.shipping_address : '',
+      deliveryLongitude: shippingLocation ? shippingLocation.longitude : '',
+      deliveryLatitude: shippingLocation ? shippingLocation.latitude : '',
+      receiverName: shippingLocation ? shippingLocation.receiver_name : '',
+      receiverPhone: shippingLocation ? shippingLocation.phone_number : '',
       note: '',
       marker: {},
     }
@@ -259,7 +259,13 @@ class EditLocation extends Component {
           cancellable: true,
         },
         successCallback =>{
-          this.props.onCreatedPressed(this.props.login.token,this.props.login.user.ID,shippingLocation);
+          if(this.props.navigation.state.params.updateShippingLocation){
+            let updatedObj = Object.assign({}, {ID : this.props.navigation.state.params.updateShippingLocation.ID }, shippingLocation);
+            this.props.onUpdatePressed(this.props.login.token,this.props.login.user.ID,updatedObj);
+          }else{
+            this.props.onCreatedPressed(this.props.login.token,this.props.login.user.ID,shippingLocation);
+          }
+
 
         },
         errorCallback => {
@@ -400,14 +406,19 @@ class EditLocation extends Component {
                       // onRegionChange={this.onRegionChange.bind(this)}
                       onMapReady={this._onMapReady}
                       initialRegion={{
-                        latitude: 10.852014,
-                        longitude: 106.629380,
+                        latitude: this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.latitude : 10.852014,
+                        longitude: this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.longitude : 106.629380,
                         latitudeDelta: 0.1,
                         longitudeDelta: 0.1
                           }}>
 
                           {!!this.state.marker.coordinate && <MapView.Marker
-                            coordinate={{"latitude":this.state.marker.coordinate.latitude,"longitude":this.state.marker.coordinate.longitude}}
+                            coordinate={
+                                {
+                                  "latitude": this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.latitude : this.state.marker.coordinate.latitude,
+                                  "longitude": this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.longitude : this.state.marker.coordinate.longitude
+                                }
+                              }
                             title={"Địa điểm của bạn"}
                           />}
 
@@ -544,7 +555,10 @@ function mapDispatchToProps(dispatch) {
     // },
     onCreatedPressed: (token,userId,shippingLocationModel)=>{
       dispatch(appActions.actions.createUserLocationRequest({token: token, userId: userId,shippingLocation: shippingLocationModel}));
-    }
+    },
+    onUpdatePressed: (token,userId,shippingLocationModel)=>{
+      dispatch(appActions.actions.updateUserLocationRequest({token: token, userId: userId,shippingLocation: shippingLocationModel}));
+    },
   };
 }
 

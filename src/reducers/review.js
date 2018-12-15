@@ -1,4 +1,4 @@
-import { GET_NOTIFICATIONS_API,GET_NOTIFICATIONS_SUCCEED,GET_NOTIFICATIONS_FAILED } from '../actions/actionTypes';
+import { REVIEW_ORDER,REVIEW_ORDER_FAILED,REVIEW_ORDER_SUCCEED } from '../actions/actionTypes';
 
 
 
@@ -10,26 +10,23 @@ const initialState = {
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case GET_NOTIFICATIONS_API:
-      console.log(state);
+    case REVIEW_ORDER:
+      // console.log(state);
       return {
         ...state,
         loading: true,
       }
-    case GET_NOTIFICATIONS_SUCCEED:
-      console.log(" notif success");
-      console.log(action.data);
+    case REVIEW_ORDER_SUCCEED:
+      console.log("success");
       return {
         ...state,
-        data: action.data,
-        loading: false,
+        data: action.data
       }
-    case GET_NOTIFICATIONS_FAILED:
+    case REVIEW_ORDER_FAILED:
       console.log("failed" + action.error);
       return {
         ...state,
         error: action.error,
-        loading: false,
       }
     default:
       return state;

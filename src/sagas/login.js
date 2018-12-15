@@ -30,7 +30,7 @@ function* loginFacebookFlow(action){
                 if(action.payload.from === 'orderInfo'){
                   yield put({ type: 'Navigate', na: NavigatorService.navigate('PlaceOrderView')});
                 }else {
-                  yield put({ type: 'Navigate', na: NavigatorService.goBackToMainTabBar('OrderInfo')});
+                  yield put({ type: 'Navigate', na: NavigatorService.goBackToMainTabBar('OrderInfoStack')});
                 }
             }else{
                 yield put({ type: FACEBOOK_LOGIN_FAILED, error: response.error });
@@ -65,7 +65,7 @@ function* loginFlow(action){
         if(action.payload.from === 'orderInfo'){
           yield put({ type: 'Navigate', na: NavigatorService.navigate('PlaceOrderView')});
         }else {
-          yield put({ type: 'Navigate', na: NavigatorService.goBackToMainTabBar('OrderInfo')});
+          yield put({ type: 'Navigate', na: NavigatorService.goBackToMainTabBar('OrderInfoStack')});
         }
     }else{
         yield put({ type: API_LOGIN_REQUEST_FAILED, error: response.error });

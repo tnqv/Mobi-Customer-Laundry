@@ -4,13 +4,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
 import colors from '../config/colors';
-import { Container, Header, Left, Body, Right, Title,Content,Fab, Button,Card,CardItem,Text,Icon, Footer, } from 'native-base';
+import { Container, Header, Left, Body, Right, Title,Content,Fab, Button,Card,CardItem,Text,Icon, Footer,Item,Label,Textarea } from 'native-base';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5Pro from 'react-native-vector-icons/FontAwesome5Pro';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { requestLocationPermission } from '../config/requestPermission';
 import StepIndicator from 'react-native-step-indicator';
-
+import Dialog, { SlideAnimation, DialogContent,DialogTitle,DialogButton } from 'react-native-popup-dialog';
+import { Rating, AirbnbRating } from 'react-native-ratings';
 
 const labels = ["Xác nhận","Đã lấy đồ","Đang giặt","Giao hàng","Hoàn tất"];
 const customStyles = {
@@ -109,6 +110,8 @@ function defineStepIndicatorByStatusId (statusId){
           return 3;
     }else if(statusId === 9){
           return 4;
+    }else{
+        return 0;
     }
 
 }
@@ -121,6 +124,10 @@ class OrderInfo extends Component {
     this.state = {
       page: 1,
       active: 'true',
+      reviewVisible: false,
+      reviewingOrder: {},
+      reviewStar : 5,
+      reviewContent : '',
     };
   }
 
@@ -177,6 +184,28 @@ class OrderInfo extends Component {
             }
 
             <CardItem footer bordered style={{justifyContent:"flex-end"}}>
+                <Left>
+                  {item.current_status_id === 9 ?
+                   <Button style={{borderColor:colors.yellowWarning,
+                                    borderWidth: 1,
+                                    borderRadius: 4,
+                                    backgroundColor: colors.white}}
+                            onPress={()=>{
+                                // this.props.navigation.navigate('OrderDetail',{
+                                //   orderId: item.ID,
+                                //   orderParam: item,
+                                // });
+                                this.setState(
+                                  { reviewVisible : true,
+                                    reviewingOrder : item,
+                                    reviewContent: '',
+                                    reviewStar: 5 }
+                                );
+                            }}>
+                      <Text style={{color: colors.yellowWarning}}>Đánh giá</Text>
+                    </Button>
+                    : null }
+                </Left>
                 <Right>
                     <Button style={{borderColor:colors.colorBlueOnLeftTopLogo,
                                     borderWidth: 1,
@@ -223,6 +252,67 @@ class OrderInfo extends Component {
     return (
       <Container style={{backgroundColor: colors.lightgray}}>
       {
+        //Review
+      }
+      <Dialog
+              visible={this.state.reviewVisible}
+              onTouchOutside={() => {
+                this.setState({ reviewVisible: false });
+              }}
+              dialogTitle={<DialogTitle  style={{backgroundColor: colors.colorBlueOnLeftTopLogo}} textStyle={{color: colors.white}} title={"Đánh giá : #" + this.state.reviewingOrder.order_code} />}
+              dialogAnimation={new SlideAnimation({
+                slideFrom: 'bottom',
+              })}
+              actions={[
+
+                <DialogButton
+                  style={{backgroundColor: '#C1C1C1'}}
+                  textStyle={{color: colors.white}}
+                  text="Đóng"
+                  key="close"
+                  onPress={() => {
+                    this.setState({
+                      reviewVisible: false
+                    })
+                  }}
+                />,
+                <DialogButton
+                  style={{backgroundColor: colors.colorBlueOnLeftTopLogo,}}
+                  textStyle={{color: colors.white}}
+                  text="Xác nhận"
+                  key="confirm"
+                  onPress={() => {
+                    let tokenFromState = this.props.login.token;
+                    let userIdFromState = this.props.login.user.ID;
+
+                    this.props.onCreatedReview({token: tokenFromState, reviewObj: { rate: this.state.reviewStar, content: this.state.reviewContent,user_id: userIdFromState, placed_order_id : this.state.reviewingOrder.ID }});
+
+                    this.setState({
+                      reviewVisible: false
+                    });
+                    this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState, page: this.state.page});
+                  }}
+                />
+              ]}
+            >
+              <DialogContent>
+
+                  <AirbnbRating
+                    count={5}
+                    reviews={["Tệ", "Tạm được", "Tốt", "Tuyệt vời", "Sạch sành xanh"]}
+                    defaultRating={5}
+                    rating={this.state.reviewStar}
+                    size={20}
+                  />
+                  <View style={{marginTop: 30,}}>
+                          <Label>Nội dung</Label>
+                          <Textarea  style={{marginLeft:15}} bordered rowSpan={4}
+                                     onChangeText={(text) => this.setState({ reviewContent: text })}
+                                     value={this.state.reviewContent}/>
+                  </View>
+              </DialogContent>
+            </Dialog>
+      {
         //Header
       }
        <Header style={{backgroundColor: colors.colorBlueOnLeftTopLogo}}>
@@ -247,7 +337,7 @@ class OrderInfo extends Component {
                 //             />
                     // }>
                     >
-
+        {/* { this.props.placedorders.data.length > 0 ? */}
         <FlatList
           style={{ flex: 1}}
           data={this.props.placedorders.data}
@@ -261,6 +351,8 @@ class OrderInfo extends Component {
           onEndReachedThreshold={0.5}
           // onMomentumScrollBegin={() => { this.onEndReachedCalledDuringMomentum = false; }}
         />
+         {/* : */}
+         {/* <Text style={{color: colors.black}}>Hiện tại chưa có đơn hàng</Text> } */}
 
       </View>
       <View>
@@ -311,6 +403,9 @@ function mapDispatchToProps(dispatch) {
       onLoadOrders: (params) => {
         dispatch(appActions.actions.placedOrdersRequest(params));
       },
+      onCreatedReview: (params) => {
+        dispatch(appActions.actions.reviewOrderRequest(params));
+      }
   };
 }
 

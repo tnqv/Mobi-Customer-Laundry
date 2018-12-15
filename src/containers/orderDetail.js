@@ -62,12 +62,13 @@ class OrderDetail extends Component {
               ]}
             >
               <DialogContent>
+                {this.state.order.verify_code ?
                   <QRCode
                       // value={this.state.order.verify_code}
-                      value={"123456"}
+                      value={this.state.order.verify_code}
                       size={200}
                       bgColor='black'
-                      fgColor='white'/>
+                      fgColor='white'/> : null }
               </DialogContent>
             </Dialog>
           </View>

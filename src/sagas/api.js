@@ -139,7 +139,7 @@ function* updateShippingLocation(token,userId,shippingLocation){
     }
     const response = yield axios({
         method: 'put',
-        url: baseUrl + `/user/${userId}/location/${shippingLocation.id}`,
+        url: baseUrl + `/user/${userId}/location/${shippingLocation.ID}`,
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
             "Authorization" : token,
@@ -148,6 +148,42 @@ function* updateShippingLocation(token,userId,shippingLocation){
     });
     const updatedShippingLocation = yield response.status === 200 ? response : null
     return updatedShippingLocation
+}
+
+function* deleteShippingLocation(token,userId,shippingLocationId){
+
+    const response = yield axios({
+        method: 'DELETE',
+        url: baseUrl + `/user/${userId}/location/${shippingLocationId}`,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization" : token,
+        },
+        // data: formData,
+    });
+    const deleteShippingLocation = yield response.status === 200 ? response : null
+    return deleteShippingLocation
+}
+
+function* reviewOrder(token,reviewObj){
+    let formData = new FormData();
+    for ( let key in reviewObj) {
+        formData.append(key, reviewObj[key]);
+    }
+    console.log(formData);
+    const response = yield axios({
+        method: 'POST',
+        url: baseUrl + `/review/`,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization" : token,
+        },
+        data: formData,
+    });
+    console.log(response)
+
+    const reviewResponse = yield response.status === 200 ? response : null
+    return reviewResponse
 }
 
 export const Api = {
@@ -160,4 +196,6 @@ export const Api = {
   updateFcmTokenToApi,
   createNewShippingLocation,
   updateShippingLocation,
+  deleteShippingLocation,
+  reviewOrder,
 };

@@ -65,8 +65,8 @@ class PlaceOrder extends Component {
 
   _onMapReady = () => this.setState({statusBarHeight: StatusBar.currentHeight})
 
-  _handleBackPress = () => {
-        NavigatorService.goBackToMainTabBar('OrderInfo');
+  _handleBackPress(){
+        NavigatorService.reset('MainTabBar');
   }
 
   componentWillMount(){
@@ -283,7 +283,7 @@ class PlaceOrder extends Component {
         },
         successCallback =>{
             // alert(successCallback);
-            NavigatorService.goBackToMainTabBar('OrderInfo')
+            NavigatorService.goBackToMainTabBar('OrderInfoStack')
         },
         errorCallback => {
             // alert(errorCallback);
@@ -439,14 +439,18 @@ class PlaceOrder extends Component {
                             <MapView
                             style={{width:100,height:100}}
                             initialRegion={{
-                              latitude: 10.852014,
-                              longitude: 106.629380,
+                              latitude: this.props.locationAddress.chosenLocation.latitude,
+                              longitude: this.props.locationAddress.chosenLocation.longitude,
                               latitudeDelta: 0.1,
                               longitudeDelta: 0.1}}>
                               {/* <Marker
                                       coordinate={{latitude: item.latitude, longitude: item.longitude}}
                                       title={"Địa điểm của bạn"}
                                     /> */}
+                                     <Marker
+                                        coordinate={{latitude: this.props.locationAddress.chosenLocation.latitude, longitude: this.props.locationAddress.chosenLocation.longitude}}
+                                        title={"Địa điểm của bạn"}
+                                      />
 
                             </MapView>
                             {this.props.locationAddress.chosenLocation ?
@@ -481,6 +485,7 @@ class PlaceOrder extends Component {
                           <Icon active name='speedometer' />
                           <Label>Số ký của quần áo*</Label>
                           <Input
+                          keyboardType="numeric"
                           onChangeText={(text) => this.setState({ capacity: text })}
                           value={this.state.capacity} />
                         </Item>

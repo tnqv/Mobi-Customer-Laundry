@@ -57,7 +57,7 @@ class AuthorizedComponent extends Component{
                      alignItems:'center'}}>
                  <Left style={{marginLeft: 15}}>
                    <Thumbnail source={{ uri: this.props.data.user.imageurl}} style={{borderWidth:0.5,width:72,height:72}} />
-                   <Text style={{marginLeft:20}}>
+                   <Text style={{marginLeft:20, fontWeight: 'bold',fontSize: 18}}>
                           {this.props.data.user.name}
                     </Text>
                  </Left>

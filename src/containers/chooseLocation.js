@@ -85,7 +85,7 @@ class ChooseLocation extends Component {
           <Right style={{flex: 1}}>
 
             <TouchableOpacity onPress={()=> {
-
+                this.props.navigation.navigate('LocationManage')
             }}>
 
                 <Text style={{color:colors.white}}>Sửa</Text>
@@ -126,7 +126,9 @@ class ChooseLocation extends Component {
           onPress={()=>{
               this.props.navigation.pop();
           }}
-          style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo,position: 'absolute',bottom: 0,left: 0,}}
+          style={{ width:'100%',backgroundColor: colors.colorBlueOnLeftTopLogo,}}
+          // position: 'absolute',bottom: 0,left: 0,}}
+
           block>
             <Text style={{color:colors.white,}}>Hoàn tất</Text>
         </Button>

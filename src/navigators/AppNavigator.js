@@ -75,7 +75,7 @@ SettingsStack.navigationOptions = ({navigation}) => {
 }
 export const OrderStack = createStackNavigator(
   {
-      OrderInfo: {
+      OrderInfoStack: {
           screen: OrderInfo,
           navigationOptions: {
               header: null,
@@ -105,10 +105,24 @@ export const OrderStack = createStackNavigator(
          navigationOptions: {
           tabBarVisible: false,
          }
+      },
+      LocationManage: {
+        screen: LocationManage,
+        navigationOptions: {
+          tabBarVisible: false,
+          header: null,
+        }
+      },
+      EditLocation: {
+        screen: EditLocation,
+        navigationOptions: {
+          tabBarVisible: false,
+          header: null,
+        }
       }
   },
   {
-      initialRouteName: 'OrderInfo',
+      initialRouteName: 'OrderInfoStack',
       mode: 'modal',
       headerMode: 'none',
 
@@ -134,7 +148,18 @@ OrderStack.navigationOptions = ({navigation}) => {
 
    }else if (routeName === 'ChooseLocation'){
     tabBarVisible = false;
-   }
+   }else if(routeName === 'LocationManage') {
+
+    tabBarVisible = false;
+    header = null;
+
+  }else if(routeName === 'EditLocation'){
+
+    tabBarVisible = false;
+    header = null;
+
+  }
+
    return {
      tabBarVisible,
    }
