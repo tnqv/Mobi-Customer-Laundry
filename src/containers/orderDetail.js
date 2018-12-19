@@ -289,7 +289,7 @@ class OrderDetail extends Component {
                   dotColor={colors.white}
                   data={this.state.order.order_status_list.map(status => {
                     const orderDate = new Date(status.status_changed_time);
-                    return Object.assign({},status,{time : `${orderDate.getDate()}-${orderDate.getMonth() +1 }-${orderDate.getFullYear()} ${orderDate.getHours()}:${orderDate.getMinutes()}:${orderDate.getSeconds()}`} )
+                    return Object.assign({},status,{time : `${orderDate.getDate()}-${orderDate.getMonth() +1 }-${orderDate.getFullYear()} ${orderDate.getHours()}:${orderDate.getMinutes()}`} )
                     })
                   }
                 />

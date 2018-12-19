@@ -4,7 +4,7 @@ import { GET_NOTIFICATIONS_API,GET_NOTIFICATIONS_SUCCEED,GET_NOTIFICATIONS_FAILE
 
 const initialState = {
   loading: false,
-  data : {},
+  data : [],
   error: {},
 };
 

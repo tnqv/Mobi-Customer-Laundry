@@ -32,7 +32,7 @@ Geocoder.fallbackToGoogle('AIzaSyDZX1AjUUvJydL7kbBpmar-NUPSuUoStDY');
 class App extends Component {
 	constructor(props) {
     super(props);
-
+    console.disableYellowBox = true;
   }
 
   async componentDidMount() {

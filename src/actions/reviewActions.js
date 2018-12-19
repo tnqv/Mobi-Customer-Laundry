@@ -21,3 +21,24 @@ export function reviewOrderRequestFailed(payload) {
     payload: payload
   }
 }
+
+export function getReviewRequest(payload){
+  return {
+    type: types.GET_REVIEW,
+    payload: payload
+  }
+}
+
+export function getReviewRequestSucceed(payload){
+  return {
+    type: types.GET_REVIEW_SUCCEED,
+    payload: payload
+  }
+}
+
+export function getReviewRequestFailed(payload){
+  return {
+    type: types.GET_REVIEW_FAILED,
+    payload: payload
+  }
+}

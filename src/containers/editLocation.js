@@ -29,7 +29,13 @@ class EditLocation extends Component {
   constructor(props) {
     super(props);
     // this.state = { usernameInput: '', passwordInput: '' };
+    // if(this.props.navigation.state.params.updateShippingLocation !== undefined){
+    //   console.log(true);
+    // }else {
+    //   console.log(false);
+    // }
     let shippingLocation = this.props.navigation.state.params.updateShippingLocation;
+
     // this.onCreatedPressed = this.onCreatedPressed.bind(this);
     this.state = {
       loading: false,
@@ -45,11 +51,11 @@ class EditLocation extends Component {
       lastLat: null,
       lastLong: null,
       capacity: '',
-      deliveryAddress : shippingLocation ? shippingLocation.shipping_address : '',
-      deliveryLongitude: shippingLocation ? shippingLocation.longitude : '',
-      deliveryLatitude: shippingLocation ? shippingLocation.latitude : '',
-      receiverName: shippingLocation ? shippingLocation.receiver_name : '',
-      receiverPhone: shippingLocation ? shippingLocation.phone_number : '',
+      deliveryAddress : shippingLocation !== null && shippingLocation !== undefined ? shippingLocation.shipping_address : '',
+      deliveryLongitude: shippingLocation !== null && shippingLocation !== undefined ? shippingLocation.longitude : 0,
+      deliveryLatitude: shippingLocation !== null && shippingLocation !== undefined ? shippingLocation.latitude : 0,
+      receiverName: shippingLocation !== null && shippingLocation !== undefined ? shippingLocation.receiver_name : '',
+      receiverPhone: shippingLocation !== null && shippingLocation !== undefined ? shippingLocation.phone_number : '',
       note: '',
       marker: {},
     }
@@ -130,6 +136,8 @@ class EditLocation extends Component {
 
   setMarkerToMap(location,address){
       this.setState({
+        deliveryLatitude: location.lat,
+        deliveryLongitude: location.lng,
         marker: {
           coordinate : {
               latitude : location.lat,
@@ -259,7 +267,7 @@ class EditLocation extends Component {
           cancellable: true,
         },
         successCallback =>{
-          if(this.props.navigation.state.params.updateShippingLocation){
+          if(this.props.navigation.state.params.updateShippingLocation !== undefined && this.props.navigation.state.params.updateShippingLocation !== null){
             let updatedObj = Object.assign({}, {ID : this.props.navigation.state.params.updateShippingLocation.ID }, shippingLocation);
             this.props.onUpdatePressed(this.props.login.token,this.props.login.user.ID,updatedObj);
           }else{
@@ -297,6 +305,12 @@ class EditLocation extends Component {
     )
   }
 
+  _isNotUndefined(obj){
+    if(typeof obj === "undefined"){
+      return false;
+    }
+    return true;
+  }
   showErrorDialog(message){
     SweetAlertNative.showSweetAlert(
       {
@@ -406,8 +420,10 @@ class EditLocation extends Component {
                       // onRegionChange={this.onRegionChange.bind(this)}
                       onMapReady={this._onMapReady}
                       initialRegion={{
-                        latitude: this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.latitude : 10.852014,
-                        longitude: this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.longitude : 106.629380,
+                        // latitude: this.props.navigation.state.params.updateShippingLocation !== null && this.props.navigation.state.params.updateShippingLocation !== undefined ? this.props.navigation.state.params.updateShippingLocation.latitude : 10.852014,
+                        // longitude: this.props.navigation.state.params.updateShippingLocation !== null && this.props.navigation.state.params.updateShippingLocation !== undefined ? this.props.navigation.state.params.updateShippingLocation.longitude : 106.629380,
+                        latitude: this.state.deliveryLatitude !== 0 ? this.state.deliveryLatitude : 10.852014,
+                        longitude: this.state.deliveryLongitude !== 0 ? this.state.deliveryLongitude : 106.629380,
                         latitudeDelta: 0.1,
                         longitudeDelta: 0.1
                           }}>
@@ -415,8 +431,10 @@ class EditLocation extends Component {
                           {!!this.state.marker.coordinate && <MapView.Marker
                             coordinate={
                                 {
-                                  "latitude": this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.latitude : this.state.marker.coordinate.latitude,
-                                  "longitude": this.props.navigation.state.params.updateShippingLocation ? this.props.navigation.state.params.updateShippingLocation.longitude : this.state.marker.coordinate.longitude
+                                  // "latitude": this.props.navigation.state.params.updateShippingLocation !== null && this.props.navigation.state.params.updateShippingLocation !== undefined ? this.props.navigation.state.params.updateShippingLocation.latitude : this.state.marker.coordinate.latitude,
+                                  // "longitude": this.props.navigation.state.params.updateShippingLocation !== null && this.props.navigation.state.params.updateShippingLocation !== undefined ? this.props.navigation.state.params.updateShippingLocation.longitude : this.state.marker.coordinate.longitude
+                                  "latitude": this.state.deliveryLatitude !== 0 ? this.state.deliveryLatitude : 10.852014,
+                                  "longitude": this.state.deliveryLongitude !== 0 ? this.state.deliveryLongitude : 106.629380,
                                 }
                               }
                             title={"Địa điểm của bạn"}

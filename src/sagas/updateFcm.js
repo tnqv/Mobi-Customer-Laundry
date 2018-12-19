@@ -14,8 +14,6 @@ function* updateFcmTokenToApiFlow(action){
     const response = yield Api.updateFcmTokenToApi(tokenFromAction,accountIdFromAction,fcmTokenFromAction);
 
     if (response) {
-
-
       // This is a blocking call that would wait for the token to be stored,
       // or for the Promise to be resolved before proceeding to the next line
         yield put({ type: API_FCM_UPDATE_SUCCEEDED, result: response });

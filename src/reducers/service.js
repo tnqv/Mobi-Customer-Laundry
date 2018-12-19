@@ -4,7 +4,7 @@ import { GET_SERVICES_API,GET_SERVICES_API_FAILED,GET_SERVICES_API_SUCCEED } fro
 
 const initialState = {
   loading: false,
-  data : {},
+  data : [],
   error: {},
 };
 

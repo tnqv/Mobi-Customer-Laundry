@@ -210,7 +210,9 @@ class LocationManage extends Component {
             />
             <Card>
               <CardItem button onPress={() => {
-                  this.props.navigation.navigate('EditLocation');
+                  this.props.navigation.navigate('EditLocation',{
+                    updateShippingLocation: null,
+                  });
                 }}>
                   <Left>
                     <Text>Thêm mới</Text>

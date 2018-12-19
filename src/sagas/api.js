@@ -165,6 +165,18 @@ function* deleteShippingLocation(token,userId,shippingLocationId){
     return deleteShippingLocation
 }
 
+function* getListReview(){
+    const response = yield axios({
+        method: 'GET',
+        url: baseUrl + `/review/`,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    });
+    const reviewResponse = yield response.status === 200 ? response : null
+    return reviewResponse
+}
+
 function* reviewOrder(token,reviewObj){
     let formData = new FormData();
     for ( let key in reviewObj) {
@@ -198,4 +210,5 @@ export const Api = {
   updateShippingLocation,
   deleteShippingLocation,
   reviewOrder,
+  getListReview,
 };

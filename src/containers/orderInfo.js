@@ -176,7 +176,7 @@ class OrderInfo extends Component {
               <StepIndicator
                       renderStepIndicator={this._renderStepIndicator}
                       customStyles={customStyles}
-                      currentPosition={defineStepIndicatorByStatusId(item.order_status_list[0].status_id)}
+                      currentPosition={defineStepIndicatorByStatusId(item.current_status_id)}
                       labels={labels}
                       stepCount={5}
                     />
@@ -185,7 +185,7 @@ class OrderInfo extends Component {
 
             <CardItem footer bordered style={{justifyContent:"flex-end"}}>
                 <Left>
-                  {item.current_status_id === 9 ?
+                  {item.current_status_id === 9 && item.review_id === 0 ?
                    <Button style={{borderColor:colors.yellowWarning,
                                     borderWidth: 1,
                                     borderRadius: 4,
@@ -290,6 +290,7 @@ class OrderInfo extends Component {
                     this.setState({
                       reviewVisible: false
                     });
+
                     this.props.onLoadOrders({userId : userIdFromState, token : tokenFromState, page: this.state.page});
                   }}
                 />

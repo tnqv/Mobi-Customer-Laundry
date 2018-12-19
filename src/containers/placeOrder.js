@@ -429,6 +429,7 @@ class PlaceOrder extends Component {
 
                           </Right>
                         </CardItem>
+                        {this.props.locationAddress.chosenLocation ?
                         <CardItem style={{
                            paddingLeft:20,
                            paddingRight:0,
@@ -453,22 +454,19 @@ class PlaceOrder extends Component {
                                       />
 
                             </MapView>
-                            {this.props.locationAddress.chosenLocation ?
+
                             <Body>
                               <Text style={{color: colors.black}}>{this.props.locationAddress.chosenLocation.receiver_name}</Text>
                               <Text note>{this.props.locationAddress.chosenLocation.shipping_address}</Text>
                               <Text note>{this.props.locationAddress.chosenLocation.phone_number}</Text>
 
-                            </Body> :
-                            <Body>
-                              <Text>
-                                    Hiện tại chưa có địa chỉ, bạn vui lòng bấm vào sửa để thêm địa chỉ ship hàng !
-                              </Text>
                             </Body>
-                            }
                           </Left>
-                        </CardItem>
-
+                        </CardItem>:
+                        <Text style={{marginLeft: 20,marginRight: 20}}>
+                              Hiện tại chưa có địa chỉ, bạn vui lòng bấm vào "sửa" để thêm địa chỉ ship hàng !
+                        </Text>
+                        }
                       </Card>
                       <Card>
                       <Form style={{flex:1, backgroundColor: colors.white}}>
@@ -483,7 +481,7 @@ class PlaceOrder extends Component {
 
                         <Item floatingLabel>
                           <Icon active name='speedometer' />
-                          <Label>Số ký của quần áo*</Label>
+                          <Label>Số ký của quần áo</Label>
                           <Input
                           keyboardType="numeric"
                           onChangeText={(text) => this.setState({ capacity: text })}
@@ -548,6 +546,16 @@ class PlaceOrder extends Component {
 
                           if(receiverNameReq === '' || receiverPhoneReq === ''){
                             alert('Xin vui lòng nhập tên và số điện thoại người tạo đơn');
+                            return;
+                          }
+
+                          if(parseInt(capacityReq) < 0 || parseInt(capacityReq) > 100){
+                            alert('Xin vui lòng nhập khối lượng hợp lệ, khối lượng phải lớn hơn 0 và nhỏ hơn 100 ký');
+                            return;
+                          }
+
+                          if(noteReq.length > 500){
+                            alert('Ghi chú vượt quá số ký tự cho phép');
                             return;
                           }
 

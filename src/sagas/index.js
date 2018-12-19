@@ -9,7 +9,7 @@ import { watchPlacedOrderReq,watchCreatePlacedOrderReq } from './placedorder';
 import { watchNotificationsReq } from './notifications';
 import { watchUpdateFcmToken } from './updateFcm';
 import { watchCreateShippingLocation,watchUpdateShippingLocation,watchDeleteShippingLocation } from './shippingLocation';
-import { watchReview } from './review';
+import { watchReview,watchReviewReq } from './review';
 
 
 export default function* rootSaga() {
@@ -29,5 +29,6 @@ export default function* rootSaga() {
     watchUpdateShippingLocation,
     watchDeleteShippingLocation,
     watchReview,
+    watchReviewReq,
   ].map(fork))
 }

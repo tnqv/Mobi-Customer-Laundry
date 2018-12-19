@@ -1,4 +1,4 @@
-import { GET_SERVICES_API,GET_SERVICES_API_SUCCEED,GET_SERVICES_API_FAILED } from '../actions/actionTypes';
+import { GET_SERVICES_API,GET_SERVICES_API_SUCCEED,GET_SERVICES_API_FAILED, GET_REVIEW } from '../actions/actionTypes';
 import { NavigationActions } from 'react-navigation';
 //Saga effects
 import { put, takeLatest,takeEvery,call } from 'redux-saga/effects';
@@ -14,6 +14,8 @@ function* fetchServices(){
         const receivedServices = yield Api.getServicesFromApi();
         yield put({ type: GET_SERVICES_API_SUCCEED, data: receivedServices });
         console.log("fetch success");
+        yield put({type: GET_REVIEW, data: "fetch Review" });
+        console.log("fetch review");
         yield put({ type: 'Navigate', na: NavigatorService.navigate('MainTabBar')});
     }catch(e){
         yield put({ type: GET_SERVICES_API_FAILED, error: e });

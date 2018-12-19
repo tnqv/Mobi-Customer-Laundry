@@ -41,6 +41,7 @@ export default function (state = initialState, action) {
         console.log(state.userLocation);
         return{
           ...state,
+          chosenLocation : action.result,
           userLocation: [...state.userLocation,action.result],
           loading: false,
           // test: console.log(userLocation),

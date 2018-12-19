@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {View,Text, Image, Dimensions,SectionList,StyleSheet,Platform, PixelRatio} from 'react-native';
+import {View,Text, Image, Dimensions,SectionList,StyleSheet,Platform, PixelRatio,FlatList} from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions';
@@ -8,6 +8,7 @@ import colors from '../config/colors';
 import Swiper from 'react-native-swiper';
 import { Container, Header, Left, Body, Right, Thumbnail, Card, CardItem, Title,Content, Tabs,Tab, ListItem } from 'native-base';
 import MapView,{Marker} from 'react-native-maps';
+import { Rating, AirbnbRating } from 'react-native-ratings';
 
 
 
@@ -21,68 +22,7 @@ class ServiceInfo extends Component {
     super(props);
 
     this.state = {
-      data : [
-            {
-              "name": "Combo Giặt + Sấy + Xả Quần áo",
-              "description": "Combo Giặt + Sấy + Xả Quần áo",
-              "services": [
-                  {
-                      "image" : "timthumb.jped",
-                      "name": "Từ 1kg - 3kg/Máy/Lượt",
-                      "price": 60000,
-                      "description": "Giặt ủi theo kg chất lượng cao nè mấy ông"
-                  },
-                  {
-                      "image" : "timthumb.jped",
-                      "name": "Từ 3kg - 5kg/Máy/Lượt",
-                      "price": 35000,
-                      "description": "Giặt ủi theo kg chất lượng cao nè mấy ông"
-                  },
-                  {
-                      "image" : "timthumb.jped",
-                      "name": "Từ 5kg - 7kg/Máy/Lượt",
-                      "price": 12000,
-                      "description": "Giặt ủi theo kg chất lượng cao nè mấy ông"
-                  }
-              ]
-          },
-          {
-              "name": "Combo Chăn Màn",
-              "description": "Combo Chăn Màn",
-              "services": [
-                  {
-                      "image" : "timthumb.jped",
-                      "name": "Trọn bộ",
-                      "price": 0,
-                      "description": ""
-                  },
-                  {
-                      "image" : "timthumb.jped",
-                      "name": "2 Chăn Bông",
-                      "price": 0,
-                      "description": ""
-                  }
-              ]
-          },
-          {
-              "image" : "timthumb.jped",
-              "name": "Combo Thú bông",
-              "description": "Combo Thú bông",
-              "services": []
-          },
-          {
-              "image" : "timthumb.jped",
-              "name": "Dịch vụ giặt hấp (không bao gồm ủi)",
-              "description": "Dịch vụ giặt hấp (không bao gồm ủi)",
-              "services": []
-          },
-          {
-              "image" : "timthumb.jped",
-              "name": "Combo Rèm Cửa",
-              "description": "Combo Rèm Cửa",
-              "services": []
-          }
-      ],
+      data : [],
       listData: {}
     }
   }
@@ -157,6 +97,36 @@ class ServiceInfo extends Component {
                 selectedItemTextStyle={styles.indicatorSelectedText}
                 selectedBorderStyle={styles.selectedBorderStyle}
             />;
+  }
+
+  _renderReview = ({item,index,section}) =>  {
+      return (<ListItem thumbnail>
+                <Left>
+                  { item.user.imageurl === null || item.user.imageurl === ''?
+                  <Thumbnail source={require('../assets/l60Hf.png')} />  :
+                  <Thumbnail source={{ uri: item.user.imageurl }} />
+                  }
+                </Left>
+                <Body>
+                { item.user.name === null || item.user.name === ''?
+                  <Text style={{fontWeight: 'bold'}}>Người dùng</Text>  :
+                  <Text style={{fontWeight: 'bold'}}>{item.user.name}</Text>
+                  }
+
+                  <Text note>{item.content}</Text>
+                </Body>
+                <Right>
+                  <View pointerEvents="none">
+                    <AirbnbRating
+                      defaultRating={item.rate}
+                      count={5}
+                      size={15}
+                      showRating={false}
+                      reviews={[]}
+                    />
+                  </View>
+                </Right>
+              </ListItem>)
   }
 
   render() {
@@ -291,6 +261,9 @@ class ServiceInfo extends Component {
                     <Text style={styles.bangGiaDichVuCss}>
                           Bảng giá dịch vụ
                     </Text>
+                    <Text style={{marginLeft:20,marginRight:20}} note>
+                          Đây là giá tham khảo của các loại hình dịch vụ, để biết giá chính xác, vui lòng đợi nhân viên bên LDDS xác nhận
+                      </Text>
                     <SectionList
                       {...this.props}
                       sections= {this.state.listData}
@@ -322,8 +295,6 @@ class ServiceInfo extends Component {
                     <Card
                         style={{height:170}}>
                         <Text>Nhóm đồ án LDDS {"\n"} Công viên phần mềm Quang Trung quận 12 </Text>
-
-
                     </Card>
 
 
@@ -332,7 +303,19 @@ class ServiceInfo extends Component {
                      tabStyle={{backgroundColor: colors.colorBlueOnLeftTopLogo}}
                      textStyle={{color :colors.white}}
                      activeTabStyle={{backgroundColor: colors.colorBlueAccentOnLeftTopLogo}}>
-
+                        <Text style={styles.bangGiaDichVuCss}>
+                              Đánh giá dịch vụ
+                        </Text>
+                        <Text style={{marginLeft:20,marginRight:20}} note>
+                            Các đánh giá của người dùng đã từng sử dụng dịch vụ của LDDS
+                        </Text>
+                        <FlatList
+                            style={{ flex: 1 ,backgroundColor:'transparent'}}
+                            data={this.props.review.listReview}
+                            refreshing={this.props.review.loading}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={this._renderReview}
+                          />
                 </Tab>
             </Tabs>
 
@@ -413,6 +396,7 @@ function mapStateToProps(state) {
   return {
     state: state,
     service: state.service,
+    review: state.review,
   };
 }
 

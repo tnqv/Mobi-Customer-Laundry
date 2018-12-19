@@ -96,13 +96,18 @@ class NotificationFeeds extends Component {
   componentDidMount(){
     let tokenFromState = this.props.login.token;
     let userIdFromState = this.props.login.user.ID;
-    this.props.onLoadNotifications({userId : userIdFromState, token : tokenFromState});
+    if(this.props.login.token !== ''){
+      this.props.onLoadNotifications({userId : userIdFromState, token : tokenFromState});
+    }
+
   }
 
   onRefresh() {
     let tokenFromState = this.props.login.token;
     let userIdFromState = this.props.login.user.ID;
-    this.props.onLoadNotifications({userId : userIdFromState, token : tokenFromState});
+    if(this.props.login.token !== ''){
+      this.props.onLoadNotifications({userId : userIdFromState, token : tokenFromState});
+    }
   }
 
   _renderItem = ({item,index,section}) => {
@@ -181,15 +186,17 @@ class NotificationFeeds extends Component {
             //Body
           }
           <View style={{ flex: 1 }}>
-            { this.props.notifications.data && this.props.notifications.data.length > 0 ?
-            <FlatList
+          {this.props.login.token === '' ?  null : <FlatList
               style={{ flex: 1 ,backgroundColor:'transparent'}}
               data={this.props.notifications.data}
               onRefresh={() => this.onRefresh()}
               refreshing={this.props.notifications.loading}
               keyExtractor={(item, index) => index.toString()}
               renderItem={this._renderItem}
-            /> : <Text> Chưa có thông báo </Text> }
+            />}
+            {/* { this.props.notifications.data && this.props.notifications.data.length > 0 ? */}
+
+            {/* : <Text> Chưa có thông báo </Text> } */}
 
           </View>
         </Container>
