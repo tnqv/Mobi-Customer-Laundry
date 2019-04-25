@@ -1,3 +1,3 @@
-# mobi-laundry-c
+# Mobile Application Laundry door to door
 
-app mobile for customer
+Application that provide to customer for ordering the laundry service from laundry store
